@@ -3,24 +3,18 @@
 Tracking and analytics events for completion aggregator activities.
 """
 
-import analytics
+from datetime import datetime
+
+from eventtracking import tracker
 
 from django.conf import settings
 
-# from eventtracking import tracker
-# # from track import contexts
-# from track.event_transaction_utils import (
-#     create_new_event_transaction_id,
-#     get_event_transaction_id,
-#     get_event_transaction_type,
-#     set_event_transaction_type
-# )
+from openedx.core.djangoapps.site_configuration import helpers
 
 
-TRACKER_BI_STARTED_EVENT_NAME_FORMAT = u'edx.bi.user.{type}.started'
-TRACKER_BI_COMPLETED_EVENT_NAME_FORMAT = u'edx.bi.user.{type}.completed'
-TRACKER_STARTED_EVENT_NAME = u'edx.completion.aggregator.started'
-TRACKER_COMPLETED_EVENT_NAME = u'edx.completion.aggregator.completed'
+
+TRACKER_BI_EVENT_NAME_FORMAT = u'edx.bi.user.{agg_type}.{event_type}'
+TRACKER_EVENT_NAME_FORMAT = u'edx.completion.aggregator.{event_type}'
 
 
 def _is_trackable_aggregator_type(instance):
@@ -30,57 +24,54 @@ def _is_trackable_aggregator_type(instance):
     return instance.aggregation_name in settings.COMPLETION_AGGREGATOR_TRACKED_BLOCK_TYPES
 
 
-def track_aggregator_start(instance):
+def track_aggregator_event(instance, event_type):
     """
     Sends a tracking event when a completable aggregator is created
     """
     if not _is_trackable_aggregator_type(instance):
         return
 
+    agg_type = instance.aggregation_name
+    block_id = instance.block_key.to_string()
+    course_id = instance.course_key.to_string()
+    user_id = instance.user.id
+    timestamp = str(datetime.now())
+    percent = instance.percent * 100
+
     # BI event if we have a SEGMENT integration
-    if hasattr(settings, 'LMS_SEGMENT_KEY') and settings.LMS_SEGMENT_KEY:
+    if helpers.get_value('SEGMENT_KEY', None):
 
-        bi_event_name = TRACKER_BI_STARTED_EVENT_NAME_FORMAT.format(type=instance.aggregation_name)
+        bi_event_name = TRACKER_BI_EVENT_NAME_FORMAT.format(
+            agg_type=agg_type,
+            event_type=event_type
+        )
 
-        tracking_context = tracker.get_tracker().resolve_context()
-        analytics.track(
-            instance.user.id,
-            "edx.bi.user.account.authenticated",
+        # TODO: transform this event to add course_name and block_name
+        # those probably aren't of interest except for Chef (?)
+        # so maybe use a common.djangoapps.track.transformers.EventTransformer ?
+        tracker.emit(
+            user_id,
+            bi_event_name,
             {
-                'category': "conversion",
-                'label': request.POST.get('course_id'),
-                'provider': None
+                'label': '{} {} {}'.format(agg_type, block_id, event_type),
+                'course_id': course_id,
+                'block_id': block_id,
+                'timestamp': timestamp,
+                'completion_percent': percent,
             },
-            context={
-                'ip': tracking_context.get('ip'),
-                'Google Analytics': {
-                    'clientId': tracking_context.get('client_id')
-                }
-            }
         )
 
     # generic tracking event
-
-    event_name = TRACKER_STARTED_EVENT_NAME
-    
-    context = contexts.course_context_from_course_id(subsection_grade.course_id)
-    # TODO (AN-6134): remove this context manager
-    with tracker.get_tracker().context(event_name, context):
-        tracker.emit(
-            event_name,
-            {
-                'user_id': unicode(subsection_grade.user_id),
-                'course_id': unicode(subsection_grade.course_id),
-                'block_id': unicode(subsection_grade.usage_key),
-                'course_version': unicode(subsection_grade.course_version),
-                'weighted_total_earned': subsection_grade.earned_all,
-                'weighted_total_possible': subsection_grade.possible_all,
-                'weighted_graded_earned': subsection_grade.earned_graded,
-                'weighted_graded_possible': subsection_grade.possible_graded,
-                'first_attempted': unicode(subsection_grade.first_attempted),
-                'subtree_edited_timestamp': unicode(subsection_grade.subtree_edited_timestamp),
-                'event_transaction_id': unicode(get_event_transaction_id()),
-                'event_transaction_type': unicode(get_event_transaction_type()),
-                'visible_blocks_hash': unicode(subsection_grade.visible_blocks_id),
-            }
-        )
+    # need to work on properties and format for non-BI event
+    event_name = TRACKER_EVENT_NAME_FORMAT.format(event_type)
+    tracker.emit(
+        user_id,
+        event_name,
+        {
+            'label': '{} {} {}'.format(agg_type, block_id, event_type),
+            'course_id': course_id,
+            'block_id': block_id,
+            'timestamp': timestamp,
+            'completion_percent': percent,
+        },
+    )

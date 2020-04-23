@@ -110,9 +110,9 @@ class AggregatorManager(models.Manager):
 
         if settings.COMPLETION_AGGREGATOR_ENABLE_TRACKING is True:
             if kwargs['created'] is True:
-                tracking.track_aggregator_start(instance)
+                tracking.track_aggregator_event(instance, 'started')
             if instance.percent == 1.0:
-                tracking.track_aggregator_completion(instance)
+                tracking.track_aggregator_event(instance, 'completed')
 
 
     def submit_completion(self, user, course_key, block_key, aggregation_name, earned, possible,
