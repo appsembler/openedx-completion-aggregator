@@ -18,7 +18,6 @@ from django.utils.translation import ugettext as _
 
 from model_utils.models import TimeStampedModel
 
-from . import tracking
 from .utils import get_percent, make_datetime_timezone_unaware
 
 INSERT_OR_UPDATE_AGGREGATOR_QUERY = """
@@ -98,21 +97,6 @@ class AggregatorManager(models.Manager):
         Validate all fields before saving to database.
         """
         instance.full_clean()
-
-    @staticmethod
-    def post_save(sender, instance, **kwargs):
-        """
-        Emit tracking events after saving.
-
-        Emit an event on creation to indicate an Aggregator of completion was "started"
-        Emit an event on any save to indicate an Aggregator of completion was completed if percent = 1.0
-        """
-
-        if settings.COMPLETION_AGGREGATOR_ENABLE_TRACKING is True:
-            if kwargs['created'] is True:
-                tracking.track_aggregator_event(instance, 'started')
-            if instance.percent == 1.0:
-                tracking.track_aggregator_event(instance, 'completed')
 
 
     def submit_completion(self, user, course_key, block_key, aggregation_name, earned, possible,
