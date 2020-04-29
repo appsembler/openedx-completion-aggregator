@@ -7,6 +7,7 @@ converts them to Aggregators.
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import copy
 import logging
 from collections import namedtuple
 from datetime import datetime
@@ -23,6 +24,8 @@ from . import compat
 from .cachegroup import CacheGroup
 from .models import Aggregator, StaleCompletion
 from .utils import BagOfHolding
+from . import tracking
+
 
 OLD_DATETIME = pytz.utc.localize(datetime(1900, 1, 1, 0, 0, 0))
 UPDATER_CACHE_TIMEOUT = 600  # 10 minutes
@@ -211,9 +214,18 @@ class AggregationUpdater(object):
         updated. Otherwise, the entire course tree will be updated.
         """
         start = timezone.now()
+
+        # compare sets of aggregators since we use bulk raw SQL for update and won't know
+        # from Manager if Aggregators are created or updated
+        existing_aggregators = copy.copy(self.aggregators)
         updated_aggregators = self.calculate_updated_aggregators(changed_blocks, force)
         Aggregator.objects.bulk_create_or_update(updated_aggregators)
+        new_aggregators = set(self.aggregators).difference(existing_aggregators)
+        updated_aggregators = set(existing_aggregators).difference(new_aggregators)
         self.resolve_stale_completions(changed_blocks, start)
+
+        tracking.emit_tracking_events(self.user, new_aggregators, 'started')
+        tracking.emit_tracking_events(self.user, updated_aggregators, 'completed')
 
     def update_for_block(self, block, affected_aggregators, force=False):
         """
