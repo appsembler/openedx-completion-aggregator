@@ -3,6 +3,8 @@
 Tracking and analytics events for completion aggregator activities.
 """
 
+from django.conf import settings
+
 from eventtracking import tracker
 
 from openedx.core.djangoapps.content.course_structures.models import CourseStructure
@@ -19,7 +21,9 @@ def _is_trackable_aggregator_type(block):
     """
     Checks settings to see if we want to track this block type.
     """
-    return block.block_type in helpers.get_value('COMPLETION_AGGREGATOR_TRACKED_BLOCK_TYPES', [])
+    return block.block_type in helpers.get_value(
+        'COMPLETION_AGGREGATOR_TRACKED_BLOCK_TYPES',
+        settings.COMPLETION_AGGREGATOR_TRACKED_BLOCK_TYPES)
 
 
 def track_aggregator_event(user, aggregator_block, event_type):
@@ -49,9 +53,8 @@ def track_aggregator_event(user, aggregator_block, event_type):
     earned = instance.earned
     possible = instance.possible
 
-
     # BI event if we have a SEGMENT integration
-    if helpers.get_value('SEGMENT_KEY', None) is not None:
+    if helpers.get_value('SEGMENT_KEY', getattr(settings, 'SEGMENT_KEY')) is not None:
 
         bi_event_name = TRACKER_BI_EVENT_NAME_FORMAT.format(
             agg_type=agg_type,
@@ -97,7 +100,9 @@ def emit_tracking_events(user, aggregator_blocks, event_type):
     """
     Emit tracking events for all tracked aggregator types if enabled.
     """
-    if helpers.get_value('COMPLETION_AGGREGATOR_ENABLE_TRACKING', False) is not True:
+    if helpers.get_value(
+        'COMPLETION_AGGREGATOR_ENABLE_TRACKING',
+        settings.COMPLETION_AGGREGATOR_ENABLE_TRACKING) is not True:
         return
 
     for aggregator_block in aggregator_blocks:
