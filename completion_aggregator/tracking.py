@@ -9,6 +9,7 @@ from eventtracking import tracker
 
 from django.conf import settings
 
+from openedx.core.djangoapps.content.course_structures.models import CourseStructure
 from openedx.core.djangoapps.site_configuration import helpers
 
 from . import models
@@ -32,14 +33,14 @@ def track_aggregator_event(user, aggregator_block, event_type):
 
     instance = models.Aggregator.objects.get(user=user, block_key=aggregator_block)
 
-    if event_type == 'completed' and instance.percent != 1.0:
+    if event_type == 'started' and instance.percent == 0.0:
+        return
+    elif event_type == 'completed' and instance.percent != 1.0:
         return
 
     agg_type = instance.aggregation_name
     block_id = str(instance.block_key)
     course_id = str(instance.course_key)
-    user_id = instance.user.id
-    timestamp = str(datetime.now())
     percent = instance.percent * 100
 
     # BI event if we have a SEGMENT integration
@@ -50,30 +51,36 @@ def track_aggregator_event(user, aggregator_block, event_type):
             event_type=event_type
         )
 
-        # TODO: transform this event to add course_name and block_name
-        # those probably aren't of interest except for Chef (?)
+        try:
+            course_struct = CourseStructure.objects.get(course_id=instance.course_key)
+            block_name = course_struct.structure['blocks'][block_id]['display_name']
+            course_block_id, course_block_struct = course_struct.ordered_blocks.popitem(last=False)
+            try:
+                assert course_block_struct['block_type'] == 'course'
+                course_name = course_block_struct['display_name']
+            except AssertionError:  # this shouldn't happen
+                course_name = course_id
+        except (CourseStructure.DoesNotExist, KeyError):
+            course_name = course_id
+            block_name = block_id
+
         tracker.emit(bi_event_name, {
-            'context': {
-                'user_id': user_id,
-            },
             'label': '{} {} {}'.format(agg_type, block_id, event_type),
             'course_id': course_id,
             'block_id': block_id,
-            'timestamp': timestamp,  # we need this separate from context for BI
             'completion_percent': percent,
+            # these two may only be needed by Chef
+            'course_name': course_name,
+            'block_name': block_name  # may be a course name
         })
 
     # generic tracking event
     # TO-DO: need to work on properties and format for non-BI event
     event_name = TRACKER_EVENT_NAME_FORMAT.format(event_type=event_type)
-    tracker.emit(bi_event_name, {
-        'context': {
-            'user_id': user_id,
-        },
+    tracker.emit(event_name, {
         'label': '{} {} {}'.format(agg_type, block_id, event_type),
         'course_id': course_id,
         'block_id': block_id,
-        'timestamp': timestamp,  # for consistency with BI event
         'completion_percent': percent,
     })
 
