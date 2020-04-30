@@ -22,7 +22,7 @@ def _is_trackable_aggregator_type(block):
     Checks settings to see if we want to track this block type.
     """
     return block.block_type in helpers.get_value(
-        'COMPLETION_AGGREGATOR_TRACKED_BLOCK_TYPES', 
+        'COMPLETION_AGGREGATOR_TRACKED_BLOCK_TYPES',
         settings.COMPLETION_AGGREGATOR_TRACKED_BLOCK_TYPES)
 
 
@@ -101,7 +101,7 @@ def emit_tracking_events(user, aggregator_blocks, event_type):
     Emit tracking events for all tracked aggregator types if enabled.
     """
     if helpers.get_value(
-        'COMPLETION_AGGREGATOR_ENABLE_TRACKING', 
+        'COMPLETION_AGGREGATOR_ENABLE_TRACKING',
         settings.COMPLETION_AGGREGATOR_ENABLE_TRACKING) is not True:
         return
 
