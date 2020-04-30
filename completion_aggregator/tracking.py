@@ -63,7 +63,7 @@ def track_aggregator_event(user, aggregator_block, event_type):
             block_name = block_id
 
         tracker.emit(bi_event_name, {
-            'label': '{} {} {}'.format(agg_type, block_id, event_type),
+            'label': '{} {} {}'.format(agg_type, block_name, event_type),
             'course_id': course_id,
             'block_id': block_id,
             'completion_percent': percent,
