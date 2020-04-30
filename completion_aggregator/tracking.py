@@ -3,8 +3,6 @@
 Tracking and analytics events for completion aggregator activities.
 """
 
-from datetime import datetime
-
 from eventtracking import tracker
 
 from django.conf import settings
