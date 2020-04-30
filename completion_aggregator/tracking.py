@@ -5,8 +5,6 @@ Tracking and analytics events for completion aggregator activities.
 
 from eventtracking import tracker
 
-from django.conf import settings
-
 from openedx.core.djangoapps.content.course_structures.models import CourseStructure
 from openedx.core.djangoapps.site_configuration import helpers
 
@@ -26,7 +24,15 @@ def _is_trackable_aggregator_type(block):
 
 def track_aggregator_event(user, aggregator_block, event_type):
     """
-    Sends a tracking event when a completable aggregator is created
+    Emit tracking events for Aggregator changes based on settings and param event_type.
+
+    Takes an event type of 'started' or 'completed'.  Validates completion percentage
+    matches passed event_type.
+
+    Emits a "bi"-type event for Segment integration if configured for the Site, with
+    additional information including the block and containing course display names.
+    Also emits a more generic event for other tracking purposes.
+
     """
 
     instance = models.Aggregator.objects.get(user=user, block_key=aggregator_block)
@@ -67,13 +73,11 @@ def track_aggregator_event(user, aggregator_block, event_type):
             'course_id': course_id,
             'block_id': block_id,
             'completion_percent': percent,
-            # these two may only be needed by Chef
             'course_name': course_name,
-            'block_name': block_name  # may be a course name
+            'block_name': block_name,
         })
 
     # generic tracking event
-    # TO-DO: need to work on properties and format for non-BI event
     event_name = TRACKER_EVENT_NAME_FORMAT.format(event_type=event_type)
     tracker.emit(event_name, {
         'label': '{} {} {}'.format(agg_type, block_id, event_type),
@@ -85,13 +89,9 @@ def track_aggregator_event(user, aggregator_block, event_type):
 
 def emit_tracking_events(user, aggregator_blocks, event_type):
     """
-    Emit tracking events for all tracked aggregator types.
-    Emit an event on creation to indicate an Aggregator of completion was "started"
-    Emit an event on any save to indicate an Aggregator of completion was completed if percent = 1.0
+    Emit tracking events for all tracked aggregator types if enabled.
     """
-    # from celery.contrib import rdb; rdb.set_trace()
-    # Please telnet 127.0.0.1 6900.  Type `exit` in session to continue.
-    # https://docs.celeryproject.org/en/stable/userguide/debugging.html
+
     if settings.COMPLETION_AGGREGATOR_ENABLE_TRACKING is not True:
         return
 
