@@ -46,6 +46,9 @@ def track_aggregator_event(user, aggregator_block, event_type):
     block_id = str(instance.block_key)
     course_id = str(instance.course_key)
     percent = instance.percent * 100
+    earned = instance.earned
+    possible = instance.possible
+
 
     # BI event if we have a SEGMENT integration
     if helpers.get_value('SEGMENT_KEY', None) is not None:
@@ -84,6 +87,9 @@ def track_aggregator_event(user, aggregator_block, event_type):
         'course_id': course_id,
         'block_id': block_id,
         'completion_percent': percent,
+        'completion_earned': earned,
+        'completion_possible': possible,
+        'block_type': agg_type,
     })
 
 
