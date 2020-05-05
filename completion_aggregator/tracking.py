@@ -3,14 +3,9 @@
 Tracking and analytics events for completion aggregator activities.
 """
 
-from django.conf import settings
-
 from eventtracking import tracker
 
-from openedx.core.djangoapps.content.course_structures.models import CourseStructure
-from openedx.core.djangoapps.site_configuration import helpers
-
-from . import models
+from . import compat, models
 
 
 TRACKER_BI_EVENT_NAME_FORMAT = u'edx.bi.user.{agg_type}.{event_type}'
@@ -19,11 +14,9 @@ TRACKER_EVENT_NAME_FORMAT = u'edx.completion.aggregator.{event_type}'
 
 def _is_trackable_aggregator_type(block):
     """
-    Checks settings to see if we want to track this block type.
+    Checks settings to see if we want to track this aggregator(block) type.
     """
-    return block.block_type in helpers.get_value(
-        'COMPLETION_AGGREGATOR_TRACKED_BLOCK_TYPES',
-        settings.COMPLETION_AGGREGATOR_TRACKED_BLOCK_TYPES)
+    return block.block_type in compat.get_trackable_aggregator_types()
 
 
 def track_aggregator_event(user, aggregator_block, event_type):
@@ -54,15 +47,16 @@ def track_aggregator_event(user, aggregator_block, event_type):
     possible = instance.possible
 
     # BI event if we have a SEGMENT integration
-    if helpers.get_value('SEGMENT_KEY', getattr(settings, 'SEGMENT_KEY')) is not None:
+    if compat.get_segment_key() is not None:
 
         bi_event_name = TRACKER_BI_EVENT_NAME_FORMAT.format(
             agg_type=agg_type,
             event_type=event_type
         )
 
+        # get the display names out of the CourseStructure for efficiency
         try:
-            course_struct = CourseStructure.objects.get(course_id=instance.course_key)
+            course_struct = compat.coursestructure_model.objects.get(course_id=instance.course_key)
             block_name = course_struct.structure['blocks'][block_id]['display_name']
             course_block_id, course_block_struct = course_struct.ordered_blocks.popitem(last=False)
             try:
@@ -70,7 +64,7 @@ def track_aggregator_event(user, aggregator_block, event_type):
                 course_name = course_block_struct['display_name']
             except AssertionError:  # this shouldn't happen
                 course_name = course_id
-        except (CourseStructure.DoesNotExist, KeyError):
+        except (compat.coursestructure_model.DoesNotExist, KeyError):
             course_name = course_id
             block_name = block_id
 
@@ -96,15 +90,19 @@ def track_aggregator_event(user, aggregator_block, event_type):
     })
 
 
+def track_aggregation_events(user, aggregator_blocks, event_type):
+    """
+    If event tracking feature is enabled, call function to emit tracking events.
+    """
+    if compat.is_tracking_enabled() is not True:
+        return
+    emit_tracking_events(user, aggregator_blocks, event_type)
+
+
 def emit_tracking_events(user, aggregator_blocks, event_type):
     """
-    Emit tracking events for all tracked aggregator types if enabled.
+    Emit tracking events for all tracked aggregator types.
     """
-    if helpers.get_value(
-        'COMPLETION_AGGREGATOR_ENABLE_TRACKING',
-        settings.COMPLETION_AGGREGATOR_ENABLE_TRACKING) is not True:
-        return
-
     for aggregator_block in aggregator_blocks:
         # created and started could happen together
         if not _is_trackable_aggregator_type(aggregator_block):

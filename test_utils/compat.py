@@ -8,9 +8,11 @@ import collections
 
 from mock import MagicMock
 
+from django.conf import settings 
+
 from completion.models import BlockCompletion
 
-from .test_app.models import CohortMembership, CourseAccessRole, CourseEnrollment, CourseUserGroup
+from .test_app.models import CohortMembership, CourseAccessRole, CourseEnrollment, CourseUserGroup, CourseStructure
 
 
 class StubCompat(object):
@@ -115,6 +117,32 @@ class StubCompat(object):
         Return this replacement for CohortMembership
         """
         return CohortMembership
+
+    # TODO: Should below be moved out of StubCompat? For tracking module not by a stubbed AggregationUpdater
+
+    def coursestructure_model(self):
+        """
+        Return this replacement for CourseStructure
+        """
+        return CourseStructure
+
+    def get_segment_key():
+        """
+        We'll want to evaluate tests if this is None or non-None in tests
+        """
+        return MagicMock()
+
+    def is_tracking_enabled():
+        """
+        We'll want to evaluate tests with this as True or False
+        """
+        return MagicMock()
+
+    def get_trackable_aggregator_types():
+        """
+        Return trackable types from test_settings
+        """
+        return settings.COMPLETION_AGGREGATOR_TRACKED_BLOCK_TYPES
 
 
 CourseTreeNode = collections.namedtuple('CourseTreeNode', ['block', 'children'])

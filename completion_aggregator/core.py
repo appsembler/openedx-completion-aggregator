@@ -224,8 +224,8 @@ class AggregationUpdater(object):
         updated_aggregators = set(existing_aggregators).difference(new_aggregators)
         self.resolve_stale_completions(changed_blocks, start)
 
-        tracking.emit_tracking_events(self.user, new_aggregators, 'started')
-        tracking.emit_tracking_events(self.user, updated_aggregators, 'completed')
+        tracking.track_aggregation_events(self.user, new_aggregators, 'started')
+        tracking.track_aggregation_events(self.user, updated_aggregators, 'completed')
 
     def update_for_block(self, block, affected_aggregators, force=False):
         """
