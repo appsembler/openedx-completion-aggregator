@@ -3,6 +3,8 @@ Models to be used in tests
 """
 from __future__ import absolute_import, unicode_literals
 
+from collections import OrderedDict
+
 from opaque_keys.edx.django.models import CourseKeyField
 
 from django.conf import settings
@@ -82,3 +84,19 @@ class CohortMembership(models.Model):
 
     class Meta(object):
         unique_together = (('user', 'course_id'), )
+
+
+class CourseStructure(models.Model):
+    """
+    Provides an equivalent for the edx-platform CourseStructure model.
+    """
+
+    # TODO: for the moment, given time constraints and complexity of stubbing this model, bare minimum
+
+    course_id = CourseKeyField(max_length=255, db_index=True, unique=True, verbose_name='Course ID')
+
+
+    class Meta(object):
+        app_label = 'course_structures'
+
+    # TODO: need to implement at least ordered_blocks() method

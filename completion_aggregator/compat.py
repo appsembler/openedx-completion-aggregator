@@ -16,9 +16,17 @@ eliminates external dependencies
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+from exceptions import Exception
+
 from django.conf import settings
 
 from .transformers import AggregatorAnnotationTransformer
+
+
+class DoesNotExist(Exception):
+    """
+    Compat class for Object Manager DoesNotExist exceptions.
+    """
 
 
 def get_aggregated_model():
@@ -175,3 +183,45 @@ def cohort_membership_model():
     """
     from course_groups.models import CohortMembership  # pylint: disable=import-error
     return CohortMembership
+
+
+######### start tracking-related ###########
+
+
+def get_segment_key():
+    """
+    Return the Segment Key defined for the current Site or for the LMS service overall.
+    """
+    from openedx.core.djangoapps.site_configuration import helpers
+    return helpers.get_value('SEGMENT_KEY', getattr(settings, 'SEGMENT_KEY')) 
+
+
+def coursestructure_model():
+    """
+    Return the openedx.core.djangoapps.content.course_structures.models.CourseStructure model
+    """
+    from openedx.core.djangoapps.content.course_structures.models import CourseStructure  # pylint: disable=import-error
+    return CourseStructure
+
+
+def is_tracking_enabled():
+    """
+    Return whether event tracking is enabled for the current Site or for the LMS service overall.
+    """
+    from openedx.core.djangoapps.site_configuration import helpers  # pylint: disable=import-error
+    return helpers.get_value(
+        'COMPLETION_AGGREGATOR_ENABLE_TRACKING',
+        settings.COMPLETION_AGGREGATOR_ENABLE_TRACKING)
+
+
+def get_trackable_aggregator_types():
+    """
+    Return trackable block types from SiteConfiguration or settings
+    """
+    from openedx.core.djangoapps.site_configuration import helpers  # pylint: disable=import-error
+    return block.block_type in helpers.get_value(
+        'COMPLETION_AGGREGATOR_TRACKED_BLOCK_TYPES',
+        settings.COMPLETION_AGGREGATOR_TRACKED_BLOCK_TYPES)
+
+
+########### end tracking-related ###########
