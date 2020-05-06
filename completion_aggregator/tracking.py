@@ -42,7 +42,7 @@ def track_aggregator_event(aggregator, event_type):
 
         # get the display names out of the CourseStructure for efficiency
         try:
-            course_struct = compat.coursestructure_model.objects.get(course_id=instance.course_key)
+            course_struct = compat.coursestructure_model().objects.get(course_id=instance.course_key)
             block_name = course_struct.structure['blocks'][block_id]['display_name']
             course_block_id, course_block_struct = course_struct.ordered_blocks.popitem(last=False)
             try:
@@ -50,7 +50,7 @@ def track_aggregator_event(aggregator, event_type):
                 course_name = course_block_struct['display_name']
             except AssertionError:  # this shouldn't happen
                 course_name = course_id
-        except (compat.coursestructure_model.DoesNotExist, KeyError):
+        except (compat.coursestructure_model().DoesNotExist, KeyError):
             course_name = course_id
             block_name = block_id
 

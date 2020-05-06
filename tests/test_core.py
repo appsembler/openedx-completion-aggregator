@@ -52,17 +52,19 @@ class AggregationUpdaterTestCase(TestCase):
         """
         super(AggregationUpdaterTestCase, self).setUp()
         self.agg_modified = now() - timedelta(days=1)
-        course_key = CourseKey.from_string('course-v1:edx+course+test')
+        self.course_key = CourseKey.from_string('course-v1:edx+course+test')
         stubcompat = StubCompat([
-            course_key.make_usage_key('course', 'course'),
-            course_key.make_usage_key('html', 'course-html0'),
-            course_key.make_usage_key('html', 'course-html1'),
-            course_key.make_usage_key('html', 'course-html2'),
-            course_key.make_usage_key('html', 'course-html3'),
-            course_key.make_usage_key('other', 'course-other'),
-            course_key.make_usage_key('hidden', 'course-hidden0'),
-            course_key.make_usage_key('html', 'course-other-html4'),
-            course_key.make_usage_key('hidden', 'course-other-hidden1'),
+            self.course_key.make_usage_key('course', 'course'),
+            self.course_key.make_usage_key('chapter', 'course-chapter'),
+            self.course_key.make_usage_key('html', 'course-chapter-html'),
+            self.course_key.make_usage_key('html', 'course-html0'),
+            self.course_key.make_usage_key('html', 'course-html1'),
+            self.course_key.make_usage_key('html', 'course-html2'),
+            self.course_key.make_usage_key('html', 'course-html3'),
+            self.course_key.make_usage_key('other', 'course-other'),
+            self.course_key.make_usage_key('hidden', 'course-hidden0'),
+            self.course_key.make_usage_key('html', 'course-other-html4'),
+            self.course_key.make_usage_key('hidden', 'course-other-hidden1'),
         ])
         for compat_module in 'completion_aggregator.core.compat', 'completion_aggregator.core.compat':
             patch = mock.patch(compat_module, stubcompat)
@@ -70,23 +72,25 @@ class AggregationUpdaterTestCase(TestCase):
             self.addCleanup(patch.stop)
         user = get_user_model().objects.create(username='saskia')
         self.course_key = CourseKey.from_string('course-v1:edx+course+test')
+
+        self.user = get_user_model().objects.create(username='saskia')
         self.agg, _ = Aggregator.objects.submit_completion(
-            user=user,
+            user=self.user,
             course_key=self.course_key,
             block_key=self.course_key.make_usage_key('course', 'course'),
             aggregation_name='course',
             earned=0.0,
-            possible=0.0,
+            possible=1.0,
             last_modified=self.agg_modified,
         )
         BlockCompletion.objects.create(
-            user=user,
+            user=self.user,
             course_key=self.course_key,
             block_key=self.course_key.make_usage_key('html', 'course-other-html4'),
             completion=1.0,
             modified=now(),
         )
-        self.updater = AggregationUpdater(user, self.course_key, mock.MagicMock())
+        self.updater = AggregationUpdater(self.user, self.course_key, mock.MagicMock())
 
     @XBlock.register_temp_plugin(CourseBlock, 'course')
     @XBlock.register_temp_plugin(HTMLBlock, 'html')

@@ -24,7 +24,7 @@ COMPLETION_AGGREGATOR_BLOCK_TYPES = {'course', 'chapter', 'sequential'}
 COMPLETION_AGGREGATOR_ASYNC_AGGREGATION = True
 COMPLETION_AGGREGATOR_ENABLE_TRACKING = True
 COMPLETION_AGGREGATOR_TRACKED_BLOCK_TYPES = ['course', 'chapter', 'sequential']
-
+SEGMENT_KEY = 'fakeSegmentKey'
 
 DATABASES = {
     'default': {
