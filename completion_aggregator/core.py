@@ -21,10 +21,10 @@ from xblock.plugin import PluginMissingError
 from django.utils import timezone
 
 from . import compat
+from . import tracking
 from .cachegroup import CacheGroup
 from .models import Aggregator, StaleCompletion
 from .utils import BagOfHolding
-from . import tracking
 
 
 OLD_DATETIME = pytz.utc.localize(datetime(1900, 1, 1, 0, 0, 0))

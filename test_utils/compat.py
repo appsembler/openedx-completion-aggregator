@@ -126,21 +126,21 @@ class StubCompat(object):
         """
         return CourseStructure
 
-    def get_segment_key():
+    def get_segment_key(self):
         """
         We'll want to evaluate tests if this is None or non-None in tests
         """
-        return MagicMock()
+        return settings.SEGMENT_KEY
 
-    def is_tracking_enabled():
+    def is_tracking_enabled(self):
         """
-        We'll want to evaluate tests with this as True or False
+        Return setting without recourse to site_configuration.helpers.
         """
-        return MagicMock()
+        return settings.COMPLETION_AGGREGATOR_ENABLE_TRACKING
 
-    def get_trackable_aggregator_types():
+    def get_trackable_aggregator_types(self):
         """
-        Return trackable types from test_settings
+        Return setting without recourse to site_configuration.helpers.
         """
         return settings.COMPLETION_AGGREGATOR_TRACKED_BLOCK_TYPES
 
