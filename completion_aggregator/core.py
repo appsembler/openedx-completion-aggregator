@@ -215,17 +215,9 @@ class AggregationUpdater(object):
         """
         start = timezone.now()
 
-        # compare sets of aggregators since we use bulk raw SQL for update and won't know
-        # from Manager if Aggregators are created or updated
-        existing_aggregators = copy.copy(self.aggregators)
         updated_aggregators = self.calculate_updated_aggregators(changed_blocks, force)
         Aggregator.objects.bulk_create_or_update(updated_aggregators)
-        new_aggregators = set(self.aggregators).difference(existing_aggregators)
-        updated_aggregators = set(existing_aggregators).difference(new_aggregators)
         self.resolve_stale_completions(changed_blocks, start)
-
-        tracking.track_aggregation_events(self.user, new_aggregators, 'started')
-        tracking.track_aggregation_events(self.user, updated_aggregators, 'completed')
 
     def update_for_block(self, block, affected_aggregators, force=False):
         """
@@ -283,6 +275,7 @@ class AggregationUpdater(object):
                     last_modified=last_modified,
                 )
                 self.aggregators[block] = aggregator
+                is_new = True
             else:
                 aggregator = self.aggregators[block]
                 aggregator.earned = total_earned
@@ -290,7 +283,12 @@ class AggregationUpdater(object):
                 aggregator.percent = percent
                 aggregator.last_modified = last_modified
                 aggregator.modified = timezone.now()
+                is_new = False
             self.updated_aggregators.append(aggregator)
+
+            # evaluate for tracking events
+            tracking.track_aggregation_events(aggregator, is_new)
+
         return CompletionStats(earned=total_earned, possible=total_possible, last_modified=last_modified)
 
     def update_for_excluded(self):

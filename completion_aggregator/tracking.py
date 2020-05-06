@@ -12,19 +12,9 @@ TRACKER_BI_EVENT_NAME_FORMAT = u'edx.bi.user.{agg_type}.{event_type}'
 TRACKER_EVENT_NAME_FORMAT = u'edx.completion.aggregator.{event_type}'
 
 
-def _is_trackable_aggregator_type(block):
+def track_aggregator_event(aggregator, event_type):
     """
-    Checks settings to see if we want to track this aggregator(block) type.
-    """
-    return block.block_type in compat.get_trackable_aggregator_types()
-
-
-def track_aggregator_event(user, aggregator_block, event_type):
-    """
-    Emit tracking events for Aggregator changes based on settings and param event_type.
-
-    Takes an event type of 'started' or 'completed'.  Validates completion percentage
-    matches passed event_type.
+    Emit tracking events for Aggregator changes based on passed event_type
 
     Emits a "bi"-type event for Segment integration if configured for the Site, with
     additional information including the block and containing course display names.
@@ -32,19 +22,15 @@ def track_aggregator_event(user, aggregator_block, event_type):
 
     """
 
-    instance = models.Aggregator.objects.get(user=user, block_key=aggregator_block)
-
-    if event_type == 'started' and instance.percent == 0.0:
-        return
-    elif event_type == 'completed' and instance.percent != 1.0:
+    if event_type not in ('completed', 'started'):
         return
 
-    agg_type = instance.aggregation_name
-    block_id = str(instance.block_key)
-    course_id = str(instance.course_key)
-    percent = instance.percent * 100
-    earned = instance.earned
-    possible = instance.possible
+    agg_type = aggregator.aggregation_name
+    block_id = str(aggregator.block_key)
+    course_id = str(aggregator.course_key)
+    percent = aggregator.percent * 100
+    earned = aggregator.earned
+    possible = aggregator.possible
 
     # BI event if we have a SEGMENT integration
     if compat.get_segment_key() is not None:
@@ -90,21 +76,24 @@ def track_aggregator_event(user, aggregator_block, event_type):
     })
 
 
-def track_aggregation_events(user, aggregator_blocks, event_type):
+def track_aggregation_events(aggregator, is_new=False):
     """
-    If event tracking feature is enabled, call function to emit tracking events.
+    If event tracking feature is enabled and is a trackable type, call function to emit tracking events.
+    Keep in mind that the aggregator may not have been saved to the database yet.
     """
+    import pdb; pdb.set_trace()
     if compat.is_tracking_enabled() is not True:
         return
-    emit_tracking_events(user, aggregator_blocks, event_type)
+    if aggregator.block_type not in compat.get_trackable_aggregator_types():
+        return
+    if aggregator.percent == 0:
+        return
 
+    event_types = []
 
-def emit_tracking_events(user, aggregator_blocks, event_type):
-    """
-    Emit tracking events for all tracked aggregator types.
-    """
-    for aggregator_block in aggregator_blocks:
-        # created and started could happen together
-        if not _is_trackable_aggregator_type(aggregator_block):
-            continue
-        track_aggregator_event(user, aggregator_block, event_type)
+    if is_new:
+        event_types.append('started')
+    if aggregator.percent == 1.0:
+        event_types.append('completed')
+    for event_type in event_types:
+        track_aggregator_event(aggregator, event_type)
