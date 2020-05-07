@@ -98,7 +98,6 @@ class AggregatorManager(models.Manager):
         """
         instance.full_clean()
 
-
     def submit_completion(self, user, course_key, block_key, aggregation_name, earned, possible,
                           last_modified):
         """

@@ -7,7 +7,6 @@ converts them to Aggregators.
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import copy
 import logging
 from collections import namedtuple
 from datetime import datetime
