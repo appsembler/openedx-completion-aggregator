@@ -5,11 +5,12 @@ Tracking and analytics events for completion aggregator activities.
 
 from eventtracking import tracker
 
-from . import compat, models
+from . import compat
 
 
 TRACKER_BI_EVENT_NAME_FORMAT = u'edx.bi.user.{agg_type}.{event_type}'
 TRACKER_EVENT_NAME_FORMAT = u'edx.completion.aggregator.{event_type}'
+TRACKER_VALID_EVENT_TYPES = ('completed', 'started', )
 
 
 def track_aggregator_event(aggregator, event_type):
@@ -22,7 +23,7 @@ def track_aggregator_event(aggregator, event_type):
 
     """
 
-    if event_type not in ('completed', 'started'):
+    if event_type not in TRACKER_VALID_EVENT_TYPES:
         return
 
     agg_type = aggregator.aggregation_name
@@ -42,7 +43,7 @@ def track_aggregator_event(aggregator, event_type):
 
         # get the display names out of the CourseStructure for efficiency
         try:
-            course_struct = compat.coursestructure_model().objects.get(course_id=instance.course_key)
+            course_struct = compat.coursestructure_model().objects.get(course_id=aggregator.course_key)
             block_name = course_struct.structure['blocks'][block_id]['display_name']
             course_block_id, course_block_struct = course_struct.ordered_blocks.popitem(last=False)
             try:
@@ -65,8 +66,9 @@ def track_aggregator_event(aggregator, event_type):
 
     # generic tracking event
     event_name = TRACKER_EVENT_NAME_FORMAT.format(event_type=event_type)
+    label_id = course_id if agg_type == 'course' else block_id
     tracker.emit(event_name, {
-        'label': '{} {} {}'.format(agg_type, block_id, event_type),
+        'label': '{} {} {}'.format(agg_type, label_id, event_type),
         'course_id': course_id,
         'block_id': block_id,
         'completion_percent': percent,
@@ -81,10 +83,9 @@ def track_aggregation_events(aggregator, is_new=False):
     If event tracking feature is enabled and is a trackable type, call function to emit tracking events.
     Keep in mind that the aggregator may not have been saved to the database yet.
     """
-    import pdb; pdb.set_trace()
     if compat.is_tracking_enabled() is not True:
         return
-    if aggregator.block_type not in compat.get_trackable_aggregator_types():
+    if aggregator.aggregation_name not in compat.get_trackable_aggregator_types():
         return
     if aggregator.percent == 0:
         return
