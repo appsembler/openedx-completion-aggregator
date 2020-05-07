@@ -66,8 +66,9 @@ def track_aggregator_event(aggregator, event_type):
 
     # generic tracking event
     event_name = TRACKER_EVENT_NAME_FORMAT.format(event_type=event_type)
+    label_id = course_id if agg_type == 'course' else block_id
     tracker.emit(event_name, {
-        'label': '{} {} {}'.format(agg_type, block_id, event_type),
+        'label': '{} {} {}'.format(agg_type, label_id, event_type),
         'course_id': course_id,
         'block_id': block_id,
         'completion_percent': percent,
