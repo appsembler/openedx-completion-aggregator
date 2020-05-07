@@ -183,7 +183,8 @@ class StaleCompletionResolutionTestCase(TestCase):
         assert not StaleCompletion.objects.filter(resolved=True).exists()
         assert StaleCompletion.objects.filter(resolved=False).exists()
         with compat_patch(course_key):
-            perform_aggregation()
+            with patch('completion_aggregator.tracking.compat', StubCompat([])):
+                perform_aggregation()
         assert StaleCompletion.objects.filter(resolved=True).exists()
         assert not StaleCompletion.objects.filter(resolved=False).exists()
         for user in self.users:

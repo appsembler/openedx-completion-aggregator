@@ -61,6 +61,7 @@ for key in ('completion_earned', 'completion_possible', 'block_type'):
 
 
 @ddt.ddt
+@override_settings(COMPLETION_AGGREGATOR_ENABLE_TRACKING=True)
 class EventTrackingTestCase(CompletionAPITestMixin, TestCase):
     """
     Test that the tracking events are sent/not sent properly and with correct values.
