@@ -3,6 +3,7 @@ Test event tracking functions.
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import copy 
 import ddt
 from mock import patch
 
@@ -65,33 +66,22 @@ class EventTrackingTestCase(CompletionAPITestMixin, TestCase):
         tracking.track_aggregation_events(self.agg)
         assert mock_track_aggregator_event.call_count == 0
 
-    # @XBlock.register_temp_plugin(StubCourse, 'course')
-    # @XBlock.register_temp_plugin(StubSequential, 'sequential')
-    # @XBlock.register_temp_plugin(StubHTML, 'html')
-    # def test_detail_view_staff_requested_multiple_users(self):
-    #     """
-    #     Test that requesting course completions for a set of users filters out the other enrolled users
-    #     """
-    #     version = 1
-    #     users = self.create_enrolled_users(3)
-    #     self.create_course_completion_data(users[0], 3.0, 12.0)
-    #     self.create_course_completion_data(users[1], 9.0, 12.0)
-    #     self.create_course_completion_data(users[2], 6.0, 12.0)
-    #     self.client.force_authenticate(self.staff_user)
-    #     user_ids = "{},{}".format(users[0].id, users[2].id)
-    #     response = self.client.get(self.get_detail_url(version, self.course_key, user_ids=user_ids))
-    #     self.assertEqual(response.status_code, 200)
-    #     expected_values = [
-    #         {
-    #             'username': users[0].username,
-    #             'course_key': 'edX/toy/2012_Fall',
-    #             'completion': self._get_expected_completion(1, earned=3.0, possible=12.0, percent=0.25),
-    #         },
-    #         {
-    #             'username': users[2].username,
-    #             'course_key': 'edX/toy/2012_Fall',
-    #             'completion': self._get_expected_completion(1, earned=6.0, possible=12.0, percent=0.5),
-    #         },
-    #     ]
-    #     expected = self._get_expected_detail(version, expected_values, count=2)
-    #     self.assertEqual(response.data, expected)
+    @ddt.data((0.0, True), (0.0, False), (1.0, True), (1.0, False), (0.1, True), (0.1, False))
+    @ddt.unpack
+    @patch('completion_aggregator.tracking.track_aggregator_event')
+    def test_tracking_completed_by_earned_and_newness(self, percent, is_new, mock_track_aggregator_event):
+        self.agg.percent = percent
+        tracking.track_aggregation_events(self.agg, is_new)
+        if percent == 0:
+            mock_track_aggregator_event.assert_not_called()
+        elif percent == 1:
+            mock_track_aggregator_event.assert_any_call(self.agg, 'completed')
+        elif percent < 1 and is_new:
+            mock_track_aggregator_event.assert_called_once_with(self.agg, 'started')
+        elif percent < 1 and not is_new:
+            mock_track_aggregator_event.assert_not_called()
+
+    @patch('completion_aggregator.tracking.tracker.emit')
+    def test_tracking_invalid_event_type(self, mock_emit):
+        tracking.track_aggregator_event(self.agg, 'invalid_event')
+        mock_emit.assert_not_called()

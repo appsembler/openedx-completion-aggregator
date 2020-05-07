@@ -5,11 +5,12 @@ Tracking and analytics events for completion aggregator activities.
 
 from eventtracking import tracker
 
-from . import compat, models
+from . import compat
 
 
 TRACKER_BI_EVENT_NAME_FORMAT = u'edx.bi.user.{agg_type}.{event_type}'
 TRACKER_EVENT_NAME_FORMAT = u'edx.completion.aggregator.{event_type}'
+TRACKER_VALID_EVENT_TYPES = ('completed', 'started', )
 
 
 def track_aggregator_event(aggregator, event_type):
@@ -22,7 +23,7 @@ def track_aggregator_event(aggregator, event_type):
 
     """
 
-    if event_type not in ('completed', 'started'):
+    if event_type not in TRACKER_VALID_EVENT_TYPES:
         return
 
     agg_type = aggregator.aggregation_name
@@ -42,7 +43,7 @@ def track_aggregator_event(aggregator, event_type):
 
         # get the display names out of the CourseStructure for efficiency
         try:
-            course_struct = compat.coursestructure_model().objects.get(course_id=instance.course_key)
+            course_struct = compat.coursestructure_model().objects.get(course_id=aggregator.course_key)
             block_name = course_struct.structure['blocks'][block_id]['display_name']
             course_block_id, course_block_struct = course_struct.ordered_blocks.popitem(last=False)
             try:
