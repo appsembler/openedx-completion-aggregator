@@ -106,6 +106,7 @@ class CompletionViewTestCase(CompletionAPITestMixin, TestCase):
                 'completion_aggregator.api.common.compat',
                 'completion_aggregator.serializers.compat',
                 'completion_aggregator.core.compat',
+                'completion_aggregator.tracking.compat',
         ):
             patcher = patch(compat_import, compat)
             patcher.start()
@@ -993,6 +994,7 @@ class CompletionBlockUpdateViewTestCase(CompletionAPITestMixin, TestCase):
                 'completion_aggregator.api.v0.views.compat',
                 'completion_aggregator.serializers.compat',
                 'completion_aggregator.core.compat',
+                'completion_aggregator.tracking.compat',
         ):
             patcher = patch(compat_import, compat)
             patcher.start()

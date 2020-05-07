@@ -3,7 +3,7 @@ Test event tracking functions.
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import copy 
+from copy import copy
 import ddt
 from mock import patch
 
@@ -22,13 +22,52 @@ from test_utils.test_mixins import CompletionAPITestMixin
 empty_compat = StubCompat([])
 
 
+EXPECTED_EVENT_DATA_GENERIC_STARTED = {
+    'label': 'course course-v1:Appsembler+AggEvents101+2020 started',
+    'course_id': 'course-v1:Appsembler+AggEvents101+2020',
+    'block_id': 'block-v1:Appsembler+AggEvents101+2020+type@course+block@course',
+    'block_type': 'course',
+    'completion_percent': 10.0,
+    'completion_earned': 0.1,
+    'completion_possible': 1.0,
+}
+
+EXPECTED_EVENT_DATA_GENERIC_COMPLETED = copy(EXPECTED_EVENT_DATA_GENERIC_STARTED)
+EXPECTED_EVENT_DATA_GENERIC_COMPLETED.update({
+    'label': 'course course-v1:Appsembler+AggEvents101+2020 completed',
+    'completion_percent': 100.0,
+    'completion_earned': 1.0,
+    'completion_possible': 1.0,
+})
+
+EXPECTED_EVENT_DATA_BI_STARTED = copy(EXPECTED_EVENT_DATA_GENERIC_STARTED)
+EXPECTED_EVENT_DATA_BI_STARTED.update({
+    'label': 'course Appsembler Aggregation Events 101 started',
+    'course_name': 'Appsembler Aggregation Events 101',
+    'block_name': 'Appsembler Aggregation Events 101',
+})
+
+EXPECTED_EVENT_DATA_BI_COMPLETED = copy(EXPECTED_EVENT_DATA_GENERIC_COMPLETED)
+EXPECTED_EVENT_DATA_BI_COMPLETED.update({
+    'label': 'course Appsembler Aggregation Events 101 completed',
+    'course_name': 'Appsembler Aggregation Events 101',
+    'block_name': 'Appsembler Aggregation Events 101',
+})
+
+# bi events don't need as much detail
+for key in ('completion_earned', 'completion_possible', 'block_type'):
+    del EXPECTED_EVENT_DATA_BI_STARTED[key]
+    del EXPECTED_EVENT_DATA_BI_COMPLETED[key]
+
+
 @ddt.ddt
+@override_settings(COMPLETION_AGGREGATOR_ENABLE_TRACKING=True)
 class EventTrackingTestCase(CompletionAPITestMixin, TestCase):
     """
     Test that the tracking events are sent/not sent properly and with correct values.
     """
 
-    course_key = CourseKey.from_string('edX/toy/2012_Fall')
+    course_key = CourseKey.from_string('course-v1:Appsembler+AggEvents101+2020')
     course_block_key = course_key.make_usage_key('course', 'course')
     course_enrollment_model = empty_compat.course_enrollment_model()
 
@@ -85,3 +124,23 @@ class EventTrackingTestCase(CompletionAPITestMixin, TestCase):
     def test_tracking_invalid_event_type(self, mock_emit):
         tracking.track_aggregator_event(self.agg, 'invalid_event')
         mock_emit.assert_not_called()
+
+    @override_settings(SEGMENT_KEY=None)
+    @patch('completion_aggregator.tracking.tracker.emit')
+    def test_tracking_no_bi_event_if_no_segment_key(self, mock_emit):
+        tracking.track_aggregator_event(self.agg, 'started')
+        mock_emit.assert_called_once()
+
+    @ddt.data('started', 'completed')
+    @patch('completion_aggregator.tracking.tracker.emit')
+    def test_tracking_events_course_happy_path(self, event_type, mock_emit):
+        if event_type == 'started':
+            self.agg.earned = self.agg.percent = 0.1
+            tracking.track_aggregator_event(self.agg, event_type)
+            mock_emit.assert_any_call('edx.bi.user.course.started', EXPECTED_EVENT_DATA_BI_STARTED)
+            mock_emit.assert_any_call('edx.completion.aggregator.started', EXPECTED_EVENT_DATA_GENERIC_STARTED)
+        elif event_type == 'completed':
+            self.agg.earned = self.agg.percent = 1.0
+            tracking.track_aggregator_event(self.agg, event_type)
+            mock_emit.assert_any_call('edx.bi.user.course.completed', EXPECTED_EVENT_DATA_BI_COMPLETED)
+            mock_emit.assert_any_call('edx.completion.aggregator.completed', EXPECTED_EVENT_DATA_GENERIC_COMPLETED)

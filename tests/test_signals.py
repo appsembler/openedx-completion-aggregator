@@ -108,5 +108,6 @@ class SignalsTestCase(TestCase):
         course_key = CourseKey.from_string('course-v1:edX+test+2018')
         user = get_user_model().objects.create(username='deleter')
         with patch('completion_aggregator.core.compat', StubCompat([])):
-            cohort_updated_handler(user, course_key)
-            assert StaleCompletion.objects.filter(username=user.username, course_key=course_key, force=True).exists()
+            with patch('completion_aggregator.tracking.compat', StubCompat([])):
+                cohort_updated_handler(user, course_key)
+                assert StaleCompletion.objects.filter(username=user.username, course_key=course_key, force=True).exists()

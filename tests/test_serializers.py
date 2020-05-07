@@ -76,6 +76,7 @@ def _course_completion_serializer_factory(serializer_cls_args):
 @ddt.ddt
 @patch('completion_aggregator.serializers.compat', stub_compat)
 @patch('completion_aggregator.core.compat', stub_compat)
+@patch('completion_aggregator.tracking.compat', stub_compat)
 class CourseCompletionSerializerTestCase(TestCase):
     """
     Test that the CourseCompletionSerializer returns appropriate results.

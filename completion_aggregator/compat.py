@@ -193,7 +193,7 @@ def get_segment_key():
     Return the Segment Key defined for the current Site or for the LMS service overall.
     """
     from openedx.core.djangoapps.site_configuration import helpers
-    return helpers.get_value('SEGMENT_KEY', getattr(settings, 'SEGMENT_KEY')) 
+    return helpers.get_value('SEGMENT_KEY', getattr(settings, 'LMS_SEGMENT_KEY'))
 
 
 def coursestructure_model():
@@ -219,7 +219,7 @@ def get_trackable_aggregator_types():
     Return trackable block types from SiteConfiguration or settings
     """
     from openedx.core.djangoapps.site_configuration import helpers  # pylint: disable=import-error
-    return block.block_type in helpers.get_value(
+    return helpers.get_value(
         'COMPLETION_AGGREGATOR_TRACKED_BLOCK_TYPES',
         settings.COMPLETION_AGGREGATOR_TRACKED_BLOCK_TYPES)
 

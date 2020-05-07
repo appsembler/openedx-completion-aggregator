@@ -66,12 +66,13 @@ class AggregationUpdaterTestCase(TestCase):
             self.course_key.make_usage_key('html', 'course-other-html4'),
             self.course_key.make_usage_key('hidden', 'course-other-hidden1'),
         ])
-        patch1 = mock.patch('completion_aggregator.core.compat', stubcompat)
-        patch2 = mock.patch('completion_aggregator.tracking.track_aggregation_events')  # isolate tracking
-        patch1.start()
-        self.mock_track_func = patch2.start()
-        self.addCleanup(patch1.stop)
-        # self.addCleanup(patch2.stop)  # TODO: not sure why my second patch doesn't work if I uncomment this
+        for compat_import in (
+                'completion_aggregator.core.compat',
+                'completion_aggregator.tracking.compat',
+        ):
+            patcher = mock.patch(compat_import, stubcompat)
+            patcher.start()
+            # self.addCleanup(patcher.__exit__, None, None, None)  # TODO: second patcher won't work if uncommented. why?
 
         self.user = get_user_model().objects.create(username='saskia')
         self.agg, _ = Aggregator.objects.submit_completion(
@@ -198,7 +199,8 @@ class AggregationUpdaterTestCase(TestCase):
     @XBlock.register_temp_plugin(CourseBlock, 'course')
     @XBlock.register_temp_plugin(OtherAggBlock, 'chapter')
     @XBlock.register_temp_plugin(HTMLBlock, 'html')
-    def test_tracking_func_calls(self):
+    @mock.patch('completion_aggregator.tracking.track_aggregation_events')
+    def test_tracking_func_calls(self, mock_track_func):
         """
         Test that tracking function is called the expected number of times for new and
         updated blocks after update().
@@ -208,13 +210,13 @@ class AggregationUpdaterTestCase(TestCase):
         self.updater.update()
 
         for agg in self.updater.aggregators.values():
-            self.mock_track_func.assert_any_call(agg, True)
+            mock_track_func.assert_any_call(agg, True)
 
-        self.mock_track_func.reset_mock()
+        mock_track_func.reset_mock()
         self.updater.update()
-        self.mock_track_func.assert_not_called()
+        mock_track_func.assert_not_called()
 
-        self.mock_track_func.reset_mock()
+        mock_track_func.reset_mock()
         BlockCompletion.objects.create(
             user=self.user,
             course_key=self.course_key,
@@ -225,7 +227,7 @@ class AggregationUpdaterTestCase(TestCase):
         self.updater = AggregationUpdater(self.user, self.course_key, mock.MagicMock())
         self.updater.update()
         for agg in self.updater.aggregators.values():
-            self.mock_track_func.assert_any_call(agg, False)
+            mock_track_func.assert_any_call(agg, False)
 
 
 class CalculateUpdatedAggregatorsTestCase(TestCase):

@@ -7,7 +7,6 @@ converts them to Aggregators.
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import copy
 import logging
 from collections import namedtuple
 from datetime import datetime
@@ -214,7 +213,6 @@ class AggregationUpdater(object):
         updated. Otherwise, the entire course tree will be updated.
         """
         start = timezone.now()
-
         updated_aggregators = self.calculate_updated_aggregators(changed_blocks, force)
         Aggregator.objects.bulk_create_or_update(updated_aggregators)
         self.resolve_stale_completions(changed_blocks, start)
