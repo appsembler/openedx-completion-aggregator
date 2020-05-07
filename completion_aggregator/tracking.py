@@ -81,10 +81,9 @@ def track_aggregation_events(aggregator, is_new=False):
     If event tracking feature is enabled and is a trackable type, call function to emit tracking events.
     Keep in mind that the aggregator may not have been saved to the database yet.
     """
-    import pdb; pdb.set_trace()
     if compat.is_tracking_enabled() is not True:
         return
-    if aggregator.block_type not in compat.get_trackable_aggregator_types():
+    if aggregator.aggregation_name not in compat.get_trackable_aggregator_types():
         return
     if aggregator.percent == 0:
         return
