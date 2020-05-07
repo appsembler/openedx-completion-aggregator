@@ -3,11 +3,16 @@ Models to be used in tests
 """
 from __future__ import absolute_import, unicode_literals
 
+from collections import OrderedDict
+
 from opaque_keys.edx.django.models import CourseKeyField
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
+
+
+TRACKING_TESTING_COURSE_IDS = ('course-v1:Appsembler+AggEvents101+2020', )
 
 
 class CourseEnrollment(models.Model):
@@ -84,13 +89,39 @@ class CohortMembership(models.Model):
         unique_together = (('user', 'course_id'), )
 
 
+class StubCourseStructureManager(models.Manager):
+    """
+    Fake model manager
+    """
+    def get(self, course_id):
+        if str(course_id) in TRACKING_TESTING_COURSE_IDS:
+            return CourseStructure(course_id=course_id)
+        else:
+            raise CourseStructure.DoesNotExist
+
+
 class CourseStructure(models.Model):
     """
-    Provides an equivalent for the edx-platform CourseStructure model.
+    Provides a minimal equivalent for the edx-platform CourseStructure model.
     """
 
-    # TODO: for the moment, given time constraints and complexity of stubbing this model, bare minimum
-
     course_id = CourseKeyField(max_length=255, db_index=True, unique=True, verbose_name='Course ID')
+    objects = StubCourseStructureManager()
 
-    # TODO: need to implement at least ordered_blocks() method
+    # TODO: this is just bare minimum for tracking tests in place
+    @property
+    def structure(self):
+        return {
+            'root': 'course-v1:Appsembler+AggEvents101+2020',
+            'blocks': {
+                'block-v1:Appsembler+AggEvents101+2020+type@course+block@course': {
+                    'block_type': 'course',
+                    'display_name': 'Appsembler Aggregation Events 101',
+                }
+            }
+        }
+
+    @property
+    def ordered_blocks(self):
+        if self.structure:
+            return OrderedDict(self.structure['blocks'], )
