@@ -8,9 +8,15 @@ from eventtracking import tracker
 from . import compat
 
 
-TRACKER_BI_EVENT_NAME_FORMAT = u'edx.bi.user.{agg_type}.{event_type}'
+TRACKER_BI_EVENT_NAME_FORMAT = u'edx.bi.completion.user.{agg_type}.{event_type}'
 TRACKER_EVENT_NAME_FORMAT = u'edx.completion.aggregator.{event_type}'
-TRACKER_VALID_EVENT_TYPES = ('completed', 'started', 'revoked', )
+TRACKER_VALID_EVENT_TYPES = {'completed', 'started', 'revoked', }
+
+
+class TrackingEventTypeError(Exception):
+    """
+    Raise if aggregator values do not parameters passed to track_aggregation_events.
+    """
 
 
 def track_aggregator_event(aggregator, event_type):
@@ -25,6 +31,8 @@ def track_aggregator_event(aggregator, event_type):
 
     if event_type not in TRACKER_VALID_EVENT_TYPES:
         return
+
+    event_type_label = 'completion revoked' if event_type == 'revoked' else event_type
 
     agg_type = aggregator.aggregation_name
     block_id = str(aggregator.block_key)
@@ -56,7 +64,7 @@ def track_aggregator_event(aggregator, event_type):
             block_name = block_id
 
         tracker.emit(bi_event_name, {
-            'label': '{} {} {}'.format(agg_type, block_name, event_type),
+            'label': '{} {} {}'.format(agg_type, block_name, event_type_label),
             'course_id': course_id,
             'block_id': block_id,
             'completion_percent': percent,
@@ -68,7 +76,7 @@ def track_aggregator_event(aggregator, event_type):
     event_name = TRACKER_EVENT_NAME_FORMAT.format(event_type=event_type)
     label_id = course_id if agg_type == 'course' else block_id
     tracker.emit(event_name, {
-        'label': '{} {} {}'.format(agg_type, label_id, event_type),
+        'label': '{} {} {}'.format(agg_type, label_id, event_type_label),
         'course_id': course_id,
         'block_id': block_id,
         'completion_percent': percent,
@@ -81,6 +89,7 @@ def track_aggregator_event(aggregator, event_type):
 def track_aggregation_events(aggregator, is_new=False, completion_revoked=False):
     """
     If event tracking feature is enabled and is a trackable type, call function to emit tracking events.
+    Validate that the properties of the aggregator match revocation param.
     Keep in mind that the aggregator may not have been saved to the database yet.
     """
     if compat.is_tracking_enabled() is not True:
@@ -89,6 +98,8 @@ def track_aggregation_events(aggregator, is_new=False, completion_revoked=False)
         return
     if aggregator.percent == 0:
         return
+    if completion_revoked and aggregator.percent == 1.0:
+        raise TrackingEventTypeError("Can't revoke a completion with a 100% complete.")
 
     event_types = []
 
