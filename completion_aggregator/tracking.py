@@ -10,7 +10,7 @@ from . import compat
 
 TRACKER_BI_EVENT_NAME_FORMAT = u'edx.bi.user.{agg_type}.{event_type}'
 TRACKER_EVENT_NAME_FORMAT = u'edx.completion.aggregator.{event_type}'
-TRACKER_VALID_EVENT_TYPES = ('completed', 'started', )
+TRACKER_VALID_EVENT_TYPES = ('completed', 'started', 'revoked', )
 
 
 def track_aggregator_event(aggregator, event_type):
@@ -78,7 +78,7 @@ def track_aggregator_event(aggregator, event_type):
     })
 
 
-def track_aggregation_events(aggregator, is_new=False):
+def track_aggregation_events(aggregator, is_new=False, completion_revoked=False):
     """
     If event tracking feature is enabled and is a trackable type, call function to emit tracking events.
     Keep in mind that the aggregator may not have been saved to the database yet.
@@ -96,5 +96,7 @@ def track_aggregation_events(aggregator, is_new=False):
         event_types.append('started')
     if aggregator.percent == 1.0:
         event_types.append('completed')
+    elif completion_revoked:
+        event_types.append('revoked')
     for event_type in event_types:
         track_aggregator_event(aggregator, event_type)

@@ -210,14 +210,14 @@ class AggregationUpdaterTestCase(TestCase):
         self.updater.update()
 
         for agg in self.updater.aggregators.values():
-            mock_track_func.assert_any_call(agg, True)
+            mock_track_func.assert_any_call(agg, True, False)
 
         mock_track_func.reset_mock()
         self.updater.update()
         mock_track_func.assert_not_called()
 
         mock_track_func.reset_mock()
-        BlockCompletion.objects.create(
+        html_cmp = BlockCompletion.objects.create(
             user=self.user,
             course_key=self.course_key,
             block_key=self.course_key.make_usage_key('html', 'course-chapter-html'),
@@ -227,7 +227,17 @@ class AggregationUpdaterTestCase(TestCase):
         self.updater = AggregationUpdater(self.user, self.course_key, mock.MagicMock())
         self.updater.update()
         for agg in self.updater.aggregators.values():
-            mock_track_func.assert_any_call(agg, False)
+            mock_track_func.assert_any_call(agg, False, False)
+
+        # test for revoked completion call
+        mock_track_func.reset_mock()
+        html_cmp.completion = 0.1
+        html_cmp.save()
+        self.updater = AggregationUpdater(self.user, self.course_key, mock.MagicMock())
+        self.updater.update()
+        for agg in self.updater.aggregators.values():
+            if agg.aggregation_name == 'chapter':   # chapter completion revoked
+                mock_track_func.assert_any_call(agg, False, True)
 
 
 class CalculateUpdatedAggregatorsTestCase(TestCase):
