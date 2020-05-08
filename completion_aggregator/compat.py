@@ -193,7 +193,7 @@ def get_segment_key():
     Return the Segment Key defined for the current Site or for the LMS service overall.
     """
     from openedx.core.djangoapps.site_configuration import helpers
-    return helpers.get_value('SEGMENT_KEY', getattr(settings, 'SEGMENT_KEY'))
+    return helpers.get_value('SEGMENT_KEY', getattr(settings, 'LMS_SEGMENT_KEY'))
 
 
 def coursestructure_model():
