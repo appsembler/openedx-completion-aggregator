@@ -274,8 +274,10 @@ class AggregationUpdater(object):
                 )
                 self.aggregators[block] = aggregator
                 is_new = True
+                completion_revoked = False
             else:
                 aggregator = self.aggregators[block]
+                completion_revoked = True if aggregator.percent == 1.0 and percent < 1.0 else False
                 aggregator.earned = total_earned
                 aggregator.possible = total_possible
                 aggregator.percent = percent
@@ -285,7 +287,7 @@ class AggregationUpdater(object):
             self.updated_aggregators.append(aggregator)
 
             # evaluate for tracking events
-            tracking.track_aggregation_events(aggregator, is_new)
+            tracking.track_aggregation_events(aggregator, is_new, completion_revoked)
 
         return CompletionStats(earned=total_earned, possible=total_possible, last_modified=last_modified)
 
