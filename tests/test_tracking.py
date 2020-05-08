@@ -37,7 +37,13 @@ EXPECTED_EVENT_DATA_GENERIC_COMPLETED.update({
     'label': 'course course-v1:Appsembler+AggEvents101+2020 completed',
     'completion_percent': 100.0,
     'completion_earned': 1.0,
-    'completion_possible': 1.0,
+})
+
+EXPECTED_EVENT_DATA_GENERIC_REVOKED = copy(EXPECTED_EVENT_DATA_GENERIC_COMPLETED)
+EXPECTED_EVENT_DATA_GENERIC_REVOKED.update({
+    'label': 'course course-v1:Appsembler+AggEvents101+2020 completion revoked',
+    'completion_percent': 90.0,
+    'completion_earned': 0.9,
 })
 
 EXPECTED_EVENT_DATA_BI_STARTED = copy(EXPECTED_EVENT_DATA_GENERIC_STARTED)
@@ -50,6 +56,13 @@ EXPECTED_EVENT_DATA_BI_STARTED.update({
 EXPECTED_EVENT_DATA_BI_COMPLETED = copy(EXPECTED_EVENT_DATA_GENERIC_COMPLETED)
 EXPECTED_EVENT_DATA_BI_COMPLETED.update({
     'label': 'course Appsembler Aggregation Events 101 completed',
+    'course_name': 'Appsembler Aggregation Events 101',
+    'block_name': 'Appsembler Aggregation Events 101',
+})
+
+EXPECTED_EVENT_DATA_BI_REVOKED = copy(EXPECTED_EVENT_DATA_GENERIC_REVOKED)
+EXPECTED_EVENT_DATA_BI_REVOKED.update({
+    'label': 'course Appsembler Aggregation Events 101 completion revoked',
     'course_name': 'Appsembler Aggregation Events 101',
     'block_name': 'Appsembler Aggregation Events 101',
 })
@@ -120,6 +133,16 @@ class EventTrackingTestCase(CompletionAPITestMixin, TestCase):
         elif percent < 1 and not is_new:
             mock_track_aggregator_event.assert_not_called()
 
+    @patch('completion_aggregator.tracking.track_aggregator_event')
+    def test_tracking_valid_invalid_completion_revoked(self, mock_track_aggregator_event):
+        self.agg.percent = 1.0
+        with self.assertRaises(tracking.TrackingEventTypeError):
+            tracking.track_aggregation_events(self.agg, is_new=False, completion_revoked=True)
+        mock_track_aggregator_event.reset_mock()
+        self.agg.percent = 0.9
+        tracking.track_aggregation_events(self.agg, is_new=False, completion_revoked=True)
+        mock_track_aggregator_event.assert_any_call(self.agg, 'revoked')
+
     @patch('completion_aggregator.tracking.tracker.emit')
     def test_tracking_invalid_event_type(self, mock_emit):
         tracking.track_aggregator_event(self.agg, 'invalid_event')
@@ -137,10 +160,15 @@ class EventTrackingTestCase(CompletionAPITestMixin, TestCase):
         if event_type == 'started':
             self.agg.earned = self.agg.percent = 0.1
             tracking.track_aggregator_event(self.agg, event_type)
-            mock_emit.assert_any_call('edx.bi.user.course.started', EXPECTED_EVENT_DATA_BI_STARTED)
+            mock_emit.assert_any_call('edx.bi.completion.user.course.started', EXPECTED_EVENT_DATA_BI_STARTED)
             mock_emit.assert_any_call('edx.completion.aggregator.started', EXPECTED_EVENT_DATA_GENERIC_STARTED)
         elif event_type == 'completed':
             self.agg.earned = self.agg.percent = 1.0
             tracking.track_aggregator_event(self.agg, event_type)
-            mock_emit.assert_any_call('edx.bi.user.course.completed', EXPECTED_EVENT_DATA_BI_COMPLETED)
+            mock_emit.assert_any_call('edx.bi.completion.user.course.completed', EXPECTED_EVENT_DATA_BI_COMPLETED)
             mock_emit.assert_any_call('edx.completion.aggregator.completed', EXPECTED_EVENT_DATA_GENERIC_COMPLETED)
+        elif event_type == 'revoked':
+            self.agg.earned = self.agg.percent = 0.9
+            tracking.track_aggregator_event(self.agg, event_type)
+            mock_emit.assert_any_call('edx.bi.completion.user.course.revoked', EXPECTED_EVENT_DATA_BI_REVOKED)
+            mock_emit.assert_any_call('edx.completion.aggregator.revoked', EXPECTED_EVENT_DATA_GENERIC_REVOKED)
