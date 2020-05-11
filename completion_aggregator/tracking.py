@@ -42,7 +42,7 @@ def track_aggregator_event(aggregator, event_type):
     possible = aggregator.possible
 
     # BI event if we have a SEGMENT integration
-    if compat.get_segment_key() is not None:
+    if compat.get_segment_key():
         bi_event_name = TRACKER_BI_EVENT_NAME_FORMAT.format(
             agg_type=agg_type,
             event_type=event_type
@@ -91,7 +91,7 @@ def track_aggregation_events(aggregator, is_new=False, completion_revoked=False)
     Validate that the properties of the aggregator match revocation param.
     Keep in mind that the aggregator may not have been saved to the database yet.
     """
-    if compat.is_tracking_enabled() is not True:
+    if not compat.is_tracking_enabled():
         return
     if aggregator.aggregation_name not in compat.get_trackable_aggregator_types():
         return
