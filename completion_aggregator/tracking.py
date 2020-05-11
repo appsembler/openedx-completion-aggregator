@@ -43,7 +43,6 @@ def track_aggregator_event(aggregator, event_type):
 
     # BI event if we have a SEGMENT integration
     if compat.get_segment_key() is not None:
-
         bi_event_name = TRACKER_BI_EVENT_NAME_FORMAT.format(
             agg_type=agg_type,
             event_type=event_type
