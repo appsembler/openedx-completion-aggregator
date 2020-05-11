@@ -12,7 +12,7 @@ from django.contrib.auth.models import User
 from django.db import models
 
 
-TRACKING_TESTING_COURSE_IDS = ('course-v1:Appsembler+AggEvents101+2020', )
+TRACKING_TESTING_COURSE_IDS = {'course-v1:Appsembler+AggEvents101+2020'}
 
 
 class CourseEnrollment(models.Model):

@@ -52,19 +52,20 @@ class AggregationUpdaterTestCase(TestCase):
         """
         super(AggregationUpdaterTestCase, self).setUp()
         self.agg_modified = now() - timedelta(days=1)
-        self.course_key = CourseKey.from_string('course-v1:edx+course+test')
+        course_key = CourseKey.from_string('course-v1:edx+course+test')
+        self.course_key = course_key
         stubcompat = StubCompat([
-            self.course_key.make_usage_key('course', 'course'),
-            self.course_key.make_usage_key('chapter', 'course-chapter'),
-            self.course_key.make_usage_key('html', 'course-chapter-html'),
-            self.course_key.make_usage_key('html', 'course-html0'),
-            self.course_key.make_usage_key('html', 'course-html1'),
-            self.course_key.make_usage_key('html', 'course-html2'),
-            self.course_key.make_usage_key('html', 'course-html3'),
-            self.course_key.make_usage_key('other', 'course-other'),
-            self.course_key.make_usage_key('hidden', 'course-hidden0'),
-            self.course_key.make_usage_key('html', 'course-other-html4'),
-            self.course_key.make_usage_key('hidden', 'course-other-hidden1'),
+            course_key.make_usage_key('course', 'course'),
+            course_key.make_usage_key('chapter', 'course-chapter'),
+            course_key.make_usage_key('html', 'course-chapter-html'),
+            course_key.make_usage_key('html', 'course-html0'),
+            course_key.make_usage_key('html', 'course-html1'),
+            course_key.make_usage_key('html', 'course-html2'),
+            course_key.make_usage_key('html', 'course-html3'),
+            course_key.make_usage_key('other', 'course-other'),
+            course_key.make_usage_key('hidden', 'course-hidden0'),
+            course_key.make_usage_key('html', 'course-other-html4'),
+            course_key.make_usage_key('hidden', 'course-other-hidden1'),
         ])
         for compat_import in (
                 'completion_aggregator.core.compat',

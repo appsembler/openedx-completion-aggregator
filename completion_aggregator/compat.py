@@ -16,8 +16,6 @@ eliminates external dependencies
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from exceptions import Exception
-
 from django.conf import settings
 
 from .transformers import AggregatorAnnotationTransformer
