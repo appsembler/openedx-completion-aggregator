@@ -5,6 +5,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import logging
 
+from django.dispatch import Signal
 from django.conf import settings
 from django.db.models.signals import post_save
 
@@ -12,6 +13,9 @@ from . import batch, compat, models
 from .tasks import handler_tasks
 
 log = logging.getLogger(__name__)
+
+
+AGGREGATORS_UPDATED = Signal(providing_args=["aggregators"])
 
 
 def register():
