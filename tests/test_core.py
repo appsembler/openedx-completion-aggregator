@@ -52,7 +52,8 @@ class AggregationUpdaterTestCase(TestCase):
         """
         super(AggregationUpdaterTestCase, self).setUp()
         self.agg_modified = now() - timedelta(days=1)
-        self.course_key = CourseKey.from_string('course-v1:edx+course+test')
+        course_key = CourseKey.from_string('course-v1:edx+course+test')
+        self.course_key = course_key
         stubcompat = StubCompat([
             self.course_key.make_usage_key('course', 'course'),
             self.course_key.make_usage_key('chapter', 'course-chapter'),
