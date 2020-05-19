@@ -52,7 +52,7 @@ def track_aggregator_event(aggregator, event_type):
         try:
             course_struct = compat.coursestructure_model().objects.get(course_id=aggregator.course_key)
             block_name = course_struct.structure['blocks'][block_id]['display_name']
-            course_block_id, course_block_struct = course_struct.ordered_blocks.popitem(last=False)
+            _, course_block_struct = course_struct.ordered_blocks.popitem(last=False)
             try:
                 assert course_block_struct['block_type'] == 'course'
                 course_name = course_block_struct['display_name']
