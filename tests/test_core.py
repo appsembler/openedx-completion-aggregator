@@ -241,6 +241,22 @@ class AggregationUpdaterTestCase(TestCase):
                 mock_track_func.assert_any_call(agg, False, True)
 
 
+    @XBlock.register_temp_plugin(CourseBlock, 'course')
+    @XBlock.register_temp_plugin(OtherAggBlock, 'chapter')
+    @mock.patch('completion_aggregator.signals.AGGREGATORS_UPDATED.send')
+    def test_signal_sent_on_update(self, mock_send_signal):
+        """
+        Test that the AGGREGATOR_UPDATED signal is sent w/correct args when aggregators are updated.
+        """
+        self.agg.delete()
+        self.updater = AggregationUpdater(self.user, self.course_key, mock.MagicMock())
+        self.updater.update()
+        mock_send_signal.assert_any_call(
+            sender=self.updater.__class__, 
+            aggregators=self.updater.updated_aggregators
+        )
+
+
 class CalculateUpdatedAggregatorsTestCase(TestCase):
     """
     Test that AggragationUpdater.calculate_updated_aggregators() finds the latest completions.
