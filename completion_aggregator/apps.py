@@ -24,7 +24,7 @@ class CompletionAggregatorAppConfig(AppConfig):
         },
         'settings_config': {
             'lms.djangoapp': {
-                'aws': {'relative_path': 'settings.aws'},
+                'aws': {'relative_path': 'settings.lms_aws'},
                 'common': {'relative_path': 'settings.common'},
             },
             'cms.djangoapp': {
@@ -40,4 +40,4 @@ class CompletionAggregatorAppConfig(AppConfig):
         """
         from . import signals
         signals.register()
-        from .tasks import aggregation_tasks, handler_tasks  # pylint: disable=unused-variable
+        from .tasks import aggregation_tasks, handler_tasks, periodic_tasks  # pylint: disable=unused-variable
