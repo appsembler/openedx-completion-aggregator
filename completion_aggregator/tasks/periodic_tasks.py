@@ -1,3 +1,7 @@
+"""
+Tasks for the CeleryBeat scheduler.
+"""
+
 from celery.app.base import Celery
 
 from ..batch import (
