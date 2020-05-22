@@ -30,6 +30,8 @@ EXPECTED_EVENT_DATA_GENERIC_STARTED = {
     'completion_percent': 10.0,
     'completion_earned': 0.1,
     'completion_possible': 1.0,
+    'org': 'Appsembler',
+    'context': {'user_id': 1}
 }
 
 EXPECTED_EVENT_DATA_GENERIC_COMPLETED = copy(EXPECTED_EVENT_DATA_GENERIC_STARTED)
@@ -96,6 +98,16 @@ class EventTrackingTestCase(CompletionAPITestMixin, TestCase):
             possible=1.0,
             last_modified=now(),
         )
+        # update with correct user id
+        for event in (
+            EXPECTED_EVENT_DATA_GENERIC_STARTED,
+            EXPECTED_EVENT_DATA_GENERIC_COMPLETED,
+            EXPECTED_EVENT_DATA_GENERIC_REVOKED,
+            EXPECTED_EVENT_DATA_BI_STARTED,
+            EXPECTED_EVENT_DATA_BI_COMPLETED,
+            EXPECTED_EVENT_DATA_BI_REVOKED
+        ):
+            event['context']['user_id'] = self.test_user.id
 
         for compat_import in (
                 'completion_aggregator.tracking.compat',
