@@ -18,3 +18,7 @@ def plugin_settings(settings):
     settings.COMPLETION_AGGREGATOR_ASYNC_AGGREGATION = False
     settings.COMPLETION_AGGREGATOR_ENABLE_TRACKING = False
     settings.COMPLETION_AGGREGATOR_TRACKED_BLOCK_TYPES = {'course', 'chapter'}
+    settings.COMPLETION_AGGREGATOR_ENABLE_CELERY_BEAT = False
+    settings.COMPLETION_AGGREGATOR_CELERY_BEAT_SCHEDULE = {
+        'minute': '*/10',  # Every 10 minutes by default
+    }
