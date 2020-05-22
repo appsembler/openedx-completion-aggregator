@@ -8,7 +8,7 @@ import collections
 
 from mock import MagicMock
 
-from django.conf import settings 
+from django.conf import settings
 
 from completion.models import BlockCompletion
 

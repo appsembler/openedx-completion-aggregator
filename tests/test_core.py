@@ -252,7 +252,7 @@ class AggregationUpdaterTestCase(TestCase):
         self.updater = AggregationUpdater(self.user, self.course_key, mock.MagicMock())
         self.updater.update()
         mock_send_signal.assert_any_call(
-            sender=self.updater.__class__, 
+            sender=self.updater.__class__,
             aggregators=self.updater.updated_aggregators
         )
 
