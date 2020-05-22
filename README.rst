@@ -43,6 +43,34 @@ ease installation.  To use in edx-platform, do the following:
     run_aggregator_service` and `./manage.py run_aggregator_cleanup` as often
     as desired.
 
+    Or, preferably, enable period tasks run with the LMS Celerybeat scheduler.  
+    Set the following in your lms.env.json file::
+
+        ...
+        "COMPLETION_AGGREGATOR_ENABLE_CELERY_BEAT": true,
+        ...
+
+
+4.  You can also enable event tracking to emit a "generic" event when 
+    new Aggregators are created and percentage complete is above 0 ('started'),
+    Aggregators are created or updated with a 1.0 percentages ('completed'), or
+    if updated and percentage moving from 1.0 to something lower ('revoked'). 
+    If a SEGMENT_KEY settings is available, a second event will be emitted in 
+    each case in the `edx.bi.completion.` namespace.  To enable tracking,
+    set the following in your lms.env.json file::
+
+        ...
+        "COMPLETION_AGGREGATOR_ENABLE_TRACKING": false
+        ...
+
+    and to configure the tracked block types override the default in your 
+    lms.env.json file::
+
+        ...
+        "COMPLETION_AGGREGATOR_TRACKED_BLOCK_TYPES": ["course", "chapter"]
+        ...
+
+
 Note that if operating on a Hawthorne-or-later release of edx-platform, you may
 override the settings in `EDXAPP_ENV_EXTRA` instead.
 
