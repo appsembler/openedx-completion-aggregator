@@ -15,7 +15,7 @@ import time
 import six
 
 from . import models, utils
-from .tasks import aggregation_tasks
+from . import tasks
 
 log = logging.getLogger(__name__)
 
@@ -95,7 +95,7 @@ def perform_aggregation(batch_size=10000, delay=0.0, limit=None, routing_key=Non
             blocks = []
         else:
             blocks = [six.text_type(block_key) for block_key in stale_blocks[enrollment]]
-        aggregation_tasks.update_aggregators.apply_async(
+        tasks.aggregation_tasks.update_aggregators.apply_async(
             kwargs={
                 'username': enrollment.username,
                 'course_key': six.text_type(enrollment.course_key),

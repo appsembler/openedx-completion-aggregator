@@ -23,6 +23,8 @@ from . import compat
 from . import tracking
 from .cachegroup import CacheGroup
 from .models import Aggregator, StaleCompletion
+
+from . import signals
 from .utils import BagOfHolding
 
 
@@ -216,6 +218,8 @@ class AggregationUpdater(object):
         updated_aggregators = self.calculate_updated_aggregators(changed_blocks, force)
         Aggregator.objects.bulk_create_or_update(updated_aggregators)
         self.resolve_stale_completions(changed_blocks, start)
+
+        signals.AGGREGATORS_UPDATED.send(sender=self.__class__, aggregators=updated_aggregators)
 
     def update_for_block(self, block, affected_aggregators, force=False):
         """

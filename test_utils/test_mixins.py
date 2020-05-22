@@ -96,4 +96,3 @@ class CompletionAPITestMixin(object):
             possible=possible,
             last_modified=timezone.now()
         )
-
