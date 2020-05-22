@@ -37,6 +37,8 @@ def track_aggregator_event(aggregator, event_type):
     agg_type = aggregator.aggregation_name
     block_id = str(aggregator.block_key)
     course_id = str(aggregator.course_key)
+    org = aggregator.course_key.org
+    user_id = aggregator.user.id
     percent = aggregator.percent * 100
     earned = aggregator.earned
     possible = aggregator.possible
@@ -69,6 +71,10 @@ def track_aggregator_event(aggregator, event_type):
             'completion_percent': percent,
             'course_name': course_name,
             'block_name': block_name,
+            'org': org,  # helpful to find Segment Key by Site
+            'context': {  # event may not be created from a request context but will need user id
+                'user_id': user_id
+            }
         })
 
     # generic tracking event
@@ -82,6 +88,10 @@ def track_aggregator_event(aggregator, event_type):
         'completion_earned': earned,
         'completion_possible': possible,
         'block_type': agg_type,
+        'org': org,
+        'context': {
+            'user_id': user_id
+        }
     })
 
 
