@@ -53,6 +53,7 @@ EXPECTED_EVENT_DATA_BI_STARTED.update({
     'label': 'course Appsembler Aggregation Events 101 started',
     'course_name': 'Appsembler Aggregation Events 101',
     'block_name': 'Appsembler Aggregation Events 101',
+    'email': ''
 })
 
 EXPECTED_EVENT_DATA_BI_COMPLETED = copy(EXPECTED_EVENT_DATA_GENERIC_COMPLETED)
@@ -60,6 +61,7 @@ EXPECTED_EVENT_DATA_BI_COMPLETED.update({
     'label': 'course Appsembler Aggregation Events 101 completed',
     'course_name': 'Appsembler Aggregation Events 101',
     'block_name': 'Appsembler Aggregation Events 101',
+    'email': ''
 })
 
 EXPECTED_EVENT_DATA_BI_REVOKED = copy(EXPECTED_EVENT_DATA_GENERIC_REVOKED)
@@ -67,6 +69,7 @@ EXPECTED_EVENT_DATA_BI_REVOKED.update({
     'label': 'course Appsembler Aggregation Events 101 completion revoked',
     'course_name': 'Appsembler Aggregation Events 101',
     'block_name': 'Appsembler Aggregation Events 101',
+    'email': ''
 })
 
 # bi events don't need as much detail
