@@ -5,6 +5,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import logging
 
+import six
+
 from django.dispatch import Signal
 from django.conf import settings
 from django.db.models.signals import post_save
