@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Models to be used in tests
 """
@@ -116,7 +117,7 @@ class CourseStructure(models.Model):
             'blocks': {
                 'block-v1:Appsembler+AggEvents101+2020+type@course+block@course': {
                     'block_type': 'course',
-                    'display_name': 'Appsembler Aggregation Events 101',
+                    'display_name': 'Appsembler Aggrégatiòn Events 101',
                 }
             }
         }
