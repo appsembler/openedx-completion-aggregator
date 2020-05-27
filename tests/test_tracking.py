@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
 """
 Test event tracking functions.
 """
+
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from copy import copy
@@ -50,25 +52,25 @@ EXPECTED_EVENT_DATA_GENERIC_REVOKED.update({
 
 EXPECTED_EVENT_DATA_BI_STARTED = copy(EXPECTED_EVENT_DATA_GENERIC_STARTED)
 EXPECTED_EVENT_DATA_BI_STARTED.update({
-    'label': 'course Appsembler Aggregation Events 101 started',
-    'course_name': 'Appsembler Aggregation Events 101',
-    'block_name': 'Appsembler Aggregation Events 101',
+    'label': 'course Appsembler Aggrégatiòn Events 101 started',
+    'course_name': 'Appsembler Aggrégatiòn Events 101',
+    'block_name': 'Appsembler Aggrégatiòn Events 101',
     'email': ''
 })
 
 EXPECTED_EVENT_DATA_BI_COMPLETED = copy(EXPECTED_EVENT_DATA_GENERIC_COMPLETED)
 EXPECTED_EVENT_DATA_BI_COMPLETED.update({
-    'label': 'course Appsembler Aggregation Events 101 completed',
-    'course_name': 'Appsembler Aggregation Events 101',
-    'block_name': 'Appsembler Aggregation Events 101',
+    'label': 'course Appsembler Aggrégatiòn Events 101 completed',
+    'course_name': 'Appsembler Aggrégatiòn Events 101',
+    'block_name': 'Appsembler Aggrégatiòn Events 101',
     'email': ''
 })
 
 EXPECTED_EVENT_DATA_BI_REVOKED = copy(EXPECTED_EVENT_DATA_GENERIC_REVOKED)
 EXPECTED_EVENT_DATA_BI_REVOKED.update({
-    'label': 'course Appsembler Aggregation Events 101 completion revoked',
-    'course_name': 'Appsembler Aggregation Events 101',
-    'block_name': 'Appsembler Aggregation Events 101',
+    'label': 'course Appsembler Aggrégatiòn Events 101 completion revoked',
+    'course_name': 'Appsembler Aggrégatiòn Events 101',
+    'block_name': 'Appsembler Aggrégatiòn Events 101',
     'email': ''
 })
 

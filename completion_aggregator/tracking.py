@@ -3,13 +3,15 @@
 Tracking and analytics events for completion aggregator activities.
 """
 
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 from eventtracking import tracker
 
 from . import compat
 
 
-TRACKER_BI_EVENT_NAME_FORMAT = u'edx.bi.completion.user.{agg_type}.{event_type}'
-TRACKER_EVENT_NAME_FORMAT = u'edx.completion.aggregator.{event_type}'
+TRACKER_BI_EVENT_NAME_FORMAT = 'edx.bi.completion.user.{agg_type}.{event_type}'
+TRACKER_EVENT_NAME_FORMAT = 'edx.completion.aggregator.{event_type}'
 TRACKER_VALID_EVENT_TYPES = {'completed', 'started', 'revoked', }
 
 
