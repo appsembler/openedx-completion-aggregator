@@ -5,6 +5,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import logging
 
+import six
+
 from django.dispatch import Signal
 from django.conf import settings
 from django.db.models.signals import post_save
@@ -85,7 +87,8 @@ def cohort_updated_handler(user, course_key, **kwargs):
     Update aggregators for a user when the user changes cohort or enrollment track.
     """
     log.debug("Updating aggregators due to cohort or enrollment update signal")
-    handler_tasks.mark_all_stale.delay(course_key=course_key, users=[user])
+    course_str = six.text_type(course_key)
+    handler_tasks.mark_all_stale.delay(course_key=course_str, users=[user.username])
 
 
 def completion_updated_handler(signal, sender, instance, created, raw, using, update_fields, **kwargs):
