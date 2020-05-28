@@ -282,12 +282,12 @@ class AggregationUpdater(object):
             else:
                 aggregator = self.aggregators[block]
                 completion_revoked = True if aggregator.percent == 1.0 and percent < 1.0 else False
+                is_new = True if aggregator.percent == 0.0 and percent > 0.0 else False
                 aggregator.earned = total_earned
                 aggregator.possible = total_possible
                 aggregator.percent = percent
                 aggregator.last_modified = last_modified
                 aggregator.modified = timezone.now()
-                is_new = False
             self.updated_aggregators.append(aggregator)
 
             # evaluate for tracking events
