@@ -228,7 +228,7 @@ class AggregationUpdaterTestCase(TestCase):
         self.updater = AggregationUpdater(self.user, self.course_key, mock.MagicMock())
         self.updater.update()
         for agg in self.updater.aggregators.values():
-            mock_track_func.assert_any_call(agg, False, False)
+            mock_track_func.assert_any_call(agg, True, False)
 
         # test for revoked completion call
         mock_track_func.reset_mock()
