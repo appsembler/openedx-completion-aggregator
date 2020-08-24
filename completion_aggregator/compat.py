@@ -189,6 +189,9 @@ def cohort_membership_model():
 def get_segment_key():
     """
     Return the Segment Key defined for the current Site or for the LMS service overall.
+
+    Note that if using async aggregation the Celery worker thread won't have a request object
+    to find the current Site
     """
     from openedx.core.djangoapps.site_configuration import helpers
     return helpers.get_value('SEGMENT_KEY', getattr(settings, 'LMS_SEGMENT_KEY'))
@@ -205,6 +208,9 @@ def coursestructure_model():
 def is_tracking_enabled():
     """
     Return whether event tracking is enabled for the current Site or for the LMS service overall.
+    
+    Note that if using async aggregation the Celery worker thread won't have a request object
+    to find the current Site
     """
     from openedx.core.djangoapps.site_configuration import helpers  # pylint: disable=import-error
     return helpers.get_value(
@@ -215,6 +221,9 @@ def is_tracking_enabled():
 def get_trackable_aggregator_types():
     """
     Return trackable block types from SiteConfiguration or settings
+
+    Note that if using async aggregation the Celery worker thread won't have a request object
+    to find the current Site
     """
     from openedx.core.djangoapps.site_configuration import helpers  # pylint: disable=import-error
     return helpers.get_value(
