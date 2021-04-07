@@ -114,9 +114,8 @@ class CompletionViewTestCase(CompletionAPITestMixin, TestCase):
 
         self.patch_object(
             CompletionViewMixin,
-            'authentication_classes',
-            new_callable=PropertyMock,
-            return_value=[OAuth2Authentication, SessionAuthentication]
+            'get_authenticators',
+            return_value=[OAuth2Authentication(), SessionAuthentication()]
         )
         self.patch_object(
             CompletionViewMixin,
@@ -1002,9 +1001,8 @@ class CompletionBlockUpdateViewTestCase(CompletionAPITestMixin, TestCase):
 
         self.patch_object(
             CompletionViewMixin,
-            'authentication_classes',
-            new_callable=PropertyMock,
-            return_value=[OAuth2Authentication, SessionAuthentication]
+            'get_authenticators',
+            return_value=[OAuth2Authentication(), SessionAuthentication()]
         )
         self.patch_object(
             CompletionViewMixin,

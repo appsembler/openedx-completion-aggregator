@@ -26,6 +26,8 @@ def register():
     """
     post_save.connect(completion_updated_handler, sender=compat.get_aggregated_model())
 
+    if not getattr(settings, 'ENABLE_COURSE_ACTIVITY_SIGNALS', False):
+        return
     try:
         from xmodule.modulestore.django import SignalHandler
     except ImportError:
@@ -70,8 +72,8 @@ def item_deleted_handler(usage_key, user_id, **kwargs):
     # Ordinarily we have to worry about losing course run information when
     # extracting a course_key from a usage_key, but the item_delete signal is
     # only fired from split-mongo, so it will always contain the course run.
-    course_key = usage_key.course_key
-    handler_tasks.mark_all_stale.delay(course_key=course_key)
+    course_str = six.text_type(usage_key.course_key)
+    handler_tasks.mark_all_stale.delay(course_key=course_str)
 
 
 def course_published_handler(course_key, **kwargs):
@@ -79,7 +81,8 @@ def course_published_handler(course_key, **kwargs):
     Update aggregators when a general course change happens.
     """
     log.debug("Updating aggregators due to course_published signal")
-    handler_tasks.mark_all_stale.delay(course_key=course_key)
+    course_str = six.text_type(course_key)
+    handler_tasks.mark_all_stale.delay(course_key=course_str)
 
 
 def cohort_updated_handler(user, course_key, **kwargs):
@@ -105,12 +108,12 @@ def completion_updated_handler(signal, sender, instance, created, raw, using, up
     log.debug(
         "Updating aggregators for %s in %s.  Updated block: %s",
         instance.user.username,
-        instance.course_key,
+        instance.context_key,
         instance.block_key,
     )
     models.StaleCompletion.objects.create(
         username=instance.user.username,
-        course_key=instance.course_key,
+        course_key=instance.context_key,
         block_key=instance.block_key
     )
     if not getattr(settings, 'COMPLETION_AGGREGATOR_ASYNC_AGGREGATION', False):

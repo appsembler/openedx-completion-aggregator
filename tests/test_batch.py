@@ -13,7 +13,9 @@ from mock import patch
 from opaque_keys.edx.keys import CourseKey
 from xblock.core import XBlock
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from django.test import TestCase, override_settings
 
 from completion.models import BlockCompletion
@@ -41,14 +43,14 @@ def test_synchronous_aggregation(mock_task, users):
     for user in users:
         BlockCompletion.objects.create(
             user=user,
-            course_key=course_key,
+            context_key=course_key,
             block_key=course_key.make_usage_key('video', 'how-to-open-craft'),
             completion=0.75,
         )
 
         BlockCompletion.objects.create(
             user=user,
-            course_key=course_key,
+            context_key=course_key,
             block_key=course_key.make_usage_key('video', 'how-not-to-open-craft'),
             completion=1.0,
         )
@@ -69,7 +71,7 @@ def test_with_multiple_batches(mock_task, users):
         for block_key in block_keys:
             BlockCompletion.objects.create(
                 user=user,
-                course_key=course_key,
+                context_key=course_key,
                 block_key=block_key,
                 completion=1.0,
             )
@@ -91,13 +93,13 @@ def test_with_stale_completions(mock_task, users):
     for user in users:
         BlockCompletion.objects.create(
             user=user,
-            course_key=course_key,
+            context_key=course_key,
             block_key=course_key.make_usage_key('video', 'how-to-open-craft'),
             completion=0.75,
         )
         BlockCompletion.objects.create(
             user=user,
-            course_key=course_key,
+            context_key=course_key,
             block_key=course_key.make_usage_key('video', 'how-not-to-open-craft'),
             completion=1.0,
         )
@@ -124,11 +126,32 @@ def test_with_full_course_stale_completion(mock_task, users):
 
 
 @patch('completion_aggregator.tasks.aggregation_tasks.update_aggregators.apply_async')
+def test_with_no_completions(mock_task, users):  # pylint: disable=unused-argument
+    perform_aggregation()
+    assert mock_task.call_count == 0
+
+
+@patch('completion_aggregator.tasks.aggregation_tasks.update_aggregators.apply_async')
 def test_with_no_blocks(mock_task, users):
     course_key = CourseKey.from_string('course-v1:OpenCraft+Onboarding+2018')
     StaleCompletion.objects.create(username=users[0].username, course_key=course_key, block_key=None, force=True)
     perform_aggregation()
     assert mock_task.call_count == 1
+
+
+@patch('completion_aggregator.tasks.aggregation_tasks.update_aggregators.apply_async')
+def test_lock(mock_task, users):
+    """Ensure that only one batch aggregation is running at the moment."""
+    cache.add(
+        settings.COMPLETION_AGGREGATOR_AGGREGATION_LOCK,
+        True,
+        settings.COMPLETION_AGGREGATOR_AGGREGATION_LOCK_TIMEOUT_SECONDS
+    )
+    course_key = CourseKey.from_string('course-v1:OpenCraft+Onboarding+2018')
+    StaleCompletion.objects.create(username=users[0].username, course_key=course_key, block_key=None, force=True)
+    perform_aggregation()
+    cache.delete(settings.COMPLETION_AGGREGATOR_AGGREGATION_LOCK)
+    assert mock_task.call_count == 0
 
 
 def test_plethora_of_stale_completions(users):
@@ -152,6 +175,22 @@ def test_plethora_of_stale_completions(users):
         },
     )
     assert mock_task.call_count == 1
+
+
+def test_cleanup_and_lock(users):
+    course_key = CourseKey.from_string('course-v1:OpenCraft+Onboarding+2018')
+    StaleCompletion.objects.create(username=users[0].username, course_key=course_key, block_key=None, resolved=True)
+    cache.add(
+        settings.COMPLETION_AGGREGATOR_CLEANUP_LOCK,
+        True,
+        settings.COMPLETION_AGGREGATOR_AGGREGATION_LOCK_TIMEOUT_SECONDS
+    )
+    perform_cleanup()
+    assert StaleCompletion.objects.count() == 1
+
+    cache.delete(settings.COMPLETION_AGGREGATOR_CLEANUP_LOCK)
+    perform_cleanup()
+    assert StaleCompletion.objects.count() == 0
 
 
 class StaleCompletionResolutionTestCase(TestCase):
