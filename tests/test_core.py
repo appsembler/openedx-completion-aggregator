@@ -221,7 +221,7 @@ class AggregationUpdaterTestCase(TestCase):
         mock_track_func.reset_mock()
         html_cmp = BlockCompletion.objects.create(
             user=self.user,
-            course_key=self.course_key,
+            context_key=self.course_key,
             block_key=self.course_key.make_usage_key('html', 'course-chapter-html'),
             completion=1.0,
             modified=now(),
