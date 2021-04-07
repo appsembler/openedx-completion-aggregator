@@ -183,23 +183,24 @@ def cohort_membership_model():
     return CohortMembership
 
 
-######### start tracking-related ###########
+# Start tracking-related
 
 
 def get_segment_key():
     """
-    Return the Segment Key defined for the current Site or for the LMS service overall.
+    Tahoe: Return the Segment Key defined for the current Site or for the LMS service overall.
 
     Note that if using async aggregation the Celery worker thread won't have a request object
     to find the current Site
     """
+    # pylint: disable=import-error,literal-used-as-attribute
     from openedx.core.djangoapps.site_configuration import helpers
     return helpers.get_value('SEGMENT_KEY', getattr(settings, 'LMS_SEGMENT_KEY'))
 
 
 def coursestructure_model():
     """
-    Return the openedx.core.djangoapps.content.course_structures.models.CourseStructure model
+    Return the openedx.core.djangoapps.content.course_structures.models.CourseStructure model.
     """
     from openedx.core.djangoapps.content.course_structures.models import CourseStructure  # pylint: disable=import-error
     return CourseStructure
@@ -208,7 +209,7 @@ def coursestructure_model():
 def is_tracking_enabled():
     """
     Return whether event tracking is enabled for the current Site or for the LMS service overall.
-    
+
     Note that if using async aggregation the Celery worker thread won't have a request object
     to find the current Site
     """
@@ -220,10 +221,9 @@ def is_tracking_enabled():
 
 def get_trackable_aggregator_types():
     """
-    Return trackable block types from SiteConfiguration or settings
+    Return trackable block types from SiteConfiguration or settings.
 
-    Note that if using async aggregation the Celery worker thread won't have a request object
-    to find the current Site
+    Note that if using async aggregation the Celery worker thread won't have a request object to find the current Site.
     """
     from openedx.core.djangoapps.site_configuration import helpers  # pylint: disable=import-error
     return helpers.get_value(
@@ -231,4 +231,4 @@ def get_trackable_aggregator_types():
         settings.COMPLETION_AGGREGATOR_TRACKED_BLOCK_TYPES)
 
 
-########### end tracking-related ###########
+# End tracking-related

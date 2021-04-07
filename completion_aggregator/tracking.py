@@ -9,7 +9,6 @@ from eventtracking import tracker
 
 from . import compat
 
-
 TRACKER_BI_EVENT_NAME_FORMAT = 'edx.bi.completion.user.{agg_type}.{event_type}'
 TRACKER_EVENT_NAME_FORMAT = 'edx.completion.aggregator.{event_type}'
 TRACKER_VALID_EVENT_TYPES = {'completed', 'started', 'revoked', }
@@ -23,14 +22,12 @@ class TrackingEventTypeError(Exception):
 
 def track_aggregator_event(aggregator, event_type):
     """
-    Emit tracking events for Aggregator changes based on passed event_type
+    Emit tracking events for Aggregator changes based on passed event_type.
 
     Emits a "bi"-type event for Segment integration if configured for the Site, with
     additional information including the block and containing course display names.
     Also emits a more generic event for other tracking purposes.
-
     """
-
     if event_type not in TRACKER_VALID_EVENT_TYPES:
         return
 
@@ -102,6 +99,7 @@ def track_aggregator_event(aggregator, event_type):
 def track_aggregation_events(aggregator, is_new=False, completion_revoked=False):
     """
     If event tracking feature is enabled and is a trackable type, call function to emit tracking events.
+
     Validate that the properties of the aggregator match revocation param.
     Keep in mind that the aggregator may not have been saved to the database yet.
     """

@@ -6,20 +6,18 @@ Test event tracking functions.
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from copy import copy
+
 import ddt
 from mock import patch
+from opaque_keys.edx.keys import CourseKey
 
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 from django.utils.timezone import now
 
-from opaque_keys.edx.keys import CourseKey
-
 from completion_aggregator import models, tracking
-
 from test_utils.compat import StubCompat
 from test_utils.test_mixins import CompletionAPITestMixin
-
 
 empty_compat = StubCompat([])
 

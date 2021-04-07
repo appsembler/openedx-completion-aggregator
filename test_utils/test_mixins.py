@@ -1,3 +1,7 @@
+"""
+Tests mixins for the Tahoe completion customizations.
+"""
+
 from mock import patch
 
 from django.contrib.auth.models import User
@@ -5,6 +9,7 @@ from django.utils import timezone
 
 from completion.models import BlockCompletion
 from completion_aggregator import models
+
 from .compat import StubCompat
 
 

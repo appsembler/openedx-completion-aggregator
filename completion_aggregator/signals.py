@@ -7,9 +7,9 @@ import logging
 
 import six
 
-from django.dispatch import Signal
 from django.conf import settings
 from django.db.models.signals import post_save
+from django.dispatch import Signal
 
 from . import batch, compat, models
 from .tasks import handler_tasks

@@ -8,13 +8,12 @@ import collections
 
 from mock import MagicMock
 
-from django.contrib.auth.models import User
-
 from django.conf import settings
+from django.contrib.auth.models import User
 
 from completion.models import BlockCompletion
 
-from .test_app.models import CohortMembership, CourseAccessRole, CourseEnrollment, CourseUserGroup, CourseStructure
+from .test_app.models import CohortMembership, CourseAccessRole, CourseEnrollment, CourseStructure, CourseUserGroup
 
 
 class StubCompat(object):

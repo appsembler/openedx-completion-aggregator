@@ -16,8 +16,7 @@ import six
 from django.conf import settings
 from django.core.cache import cache
 
-from . import models, utils
-from . import tasks
+from . import models, tasks, utils
 
 log = logging.getLogger(__name__)
 

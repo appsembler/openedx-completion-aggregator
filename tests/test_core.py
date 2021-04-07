@@ -73,7 +73,8 @@ class AggregationUpdaterTestCase(TestCase):
         ):
             patcher = mock.patch(compat_import, stubcompat)
             patcher.start()
-            # self.addCleanup(patcher.__exit__, None, None, None)  # TODO: second patcher won't work if uncommented. why?
+            # TODO: second patcher won't work if uncommented. why? -- @bryanlandia
+            # self.addCleanup(patcher.__exit__, None, None, None)
 
         self.user = get_user_model().objects.create(username='saskia')
         self.agg, _ = Aggregator.objects.submit_completion(
@@ -239,7 +240,6 @@ class AggregationUpdaterTestCase(TestCase):
         for agg in self.updater.aggregators.values():
             if agg.aggregation_name == 'chapter':   # chapter completion revoked
                 mock_track_func.assert_any_call(agg, False, True)
-
 
     @XBlock.register_temp_plugin(CourseBlock, 'course')
     @XBlock.register_temp_plugin(OtherAggBlock, 'chapter')

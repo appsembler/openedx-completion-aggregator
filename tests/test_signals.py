@@ -110,4 +110,6 @@ class SignalsTestCase(TestCase):
         with patch('completion_aggregator.core.compat', StubCompat([])):
             with patch('completion_aggregator.tracking.compat', StubCompat([])):
                 cohort_updated_handler(user, course_key)
-                assert StaleCompletion.objects.filter(username=user.username, course_key=course_key, force=True).exists()
+                assert StaleCompletion.objects.filter(
+                    username=user.username, course_key=course_key, force=True
+                ).exists()

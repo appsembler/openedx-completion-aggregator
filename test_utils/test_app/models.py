@@ -14,7 +14,6 @@ from django.db import models
 
 from model_utils.models import TimeStampedModel
 
-
 TRACKING_TESTING_COURSE_IDS = {'course-v1:Appsembler+AggEvents101+2020'}
 
 

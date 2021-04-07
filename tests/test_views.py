@@ -3,9 +3,8 @@ Test serialization of completion data.
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from datetime import timedelta
-
 import json
+from datetime import timedelta
 
 import ddt
 import six
@@ -28,7 +27,6 @@ from completion_aggregator import models
 from completion_aggregator.api.v1.views import CompletionViewMixin
 from completion_aggregator.core import AggregationUpdater
 from completion_aggregator.utils import WAFFLE_AGGREGATE_STALE_FROM_SCRATCH
-
 from test_utils.compat import StubCompat
 from test_utils.test_blocks import StubCourse, StubHTML, StubSequential
 from test_utils.test_mixins import CompletionAPITestMixin
