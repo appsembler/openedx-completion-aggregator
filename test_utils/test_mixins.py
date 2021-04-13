@@ -1,3 +1,7 @@
+"""
+Tests mixins for the Tahoe completion customizations.
+"""
+
 from mock import patch
 
 from django.contrib.auth.models import User
@@ -5,6 +9,7 @@ from django.utils import timezone
 
 from completion.models import BlockCompletion
 from completion_aggregator import models
+
 from .compat import StubCompat
 
 
@@ -33,7 +38,7 @@ class CompletionAPITestMixin(object):
         """
         BlockCompletion.objects.create(
             user=self.test_user,
-            course_key=self.course_key,
+            context_key=self.course_key,
             block_key=self.blocks[3],
             block_type='html',
             completion=1.0,

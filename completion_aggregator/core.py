@@ -19,14 +19,10 @@ from xblock.plugin import PluginMissingError
 
 from django.utils import timezone
 
-from . import compat
-from . import tracking
+from . import compat, signals, tracking
 from .cachegroup import CacheGroup
 from .models import Aggregator, StaleCompletion
-
-from . import signals
 from .utils import BagOfHolding
-
 
 OLD_DATETIME = pytz.utc.localize(datetime(1900, 1, 1, 0, 0, 0))
 UPDATER_CACHE_TIMEOUT = 600  # 10 minutes
@@ -275,6 +271,7 @@ class AggregationUpdater(object):
                     possible=total_possible,
                     percent=percent,
                     last_modified=last_modified,
+                    modified=timezone.now(),
                 )
                 self.aggregators[block] = aggregator
                 is_new = True

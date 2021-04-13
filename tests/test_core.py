@@ -73,7 +73,8 @@ class AggregationUpdaterTestCase(TestCase):
         ):
             patcher = mock.patch(compat_import, stubcompat)
             patcher.start()
-            # self.addCleanup(patcher.__exit__, None, None, None)  # TODO: second patcher won't work if uncommented. why?
+            # TODO: second patcher won't work if uncommented. why? -- @bryanlandia
+            # self.addCleanup(patcher.__exit__, None, None, None)
 
         self.user = get_user_model().objects.create(username='saskia')
         self.agg, _ = Aggregator.objects.submit_completion(
@@ -87,7 +88,7 @@ class AggregationUpdaterTestCase(TestCase):
         )
         BlockCompletion.objects.create(
             user=self.user,
-            course_key=self.course_key,
+            context_key=self.course_key,
             block_key=self.course_key.make_usage_key('html', 'course-other-html4'),
             completion=1.0,
             modified=now(),
@@ -220,7 +221,7 @@ class AggregationUpdaterTestCase(TestCase):
         mock_track_func.reset_mock()
         html_cmp = BlockCompletion.objects.create(
             user=self.user,
-            course_key=self.course_key,
+            context_key=self.course_key,
             block_key=self.course_key.make_usage_key('html', 'course-chapter-html'),
             completion=1.0,
             modified=now(),
@@ -239,7 +240,6 @@ class AggregationUpdaterTestCase(TestCase):
         for agg in self.updater.aggregators.values():
             if agg.aggregation_name == 'chapter':   # chapter completion revoked
                 mock_track_func.assert_any_call(agg, False, True)
-
 
     @XBlock.register_temp_plugin(CourseBlock, 'course')
     @XBlock.register_temp_plugin(OtherAggBlock, 'chapter')
@@ -286,7 +286,7 @@ class CalculateUpdatedAggregatorsTestCase(TestCase):
 
         BlockCompletion.objects.create(
             user=self.user,
-            course_key=self.course_key,
+            context_key=self.course_key,
             block_key=self.blocks[3],
             completion=1.0,
             modified=now(),
@@ -355,7 +355,7 @@ class CalculateUpdatedAggregatorsTestCase(TestCase):
         for block in self.blocks[4], self.blocks[6]:
             BlockCompletion.objects.create(
                 user=self.user,
-                course_key=self.course_key,
+                context_key=self.course_key,
                 block_key=block,
                 completion=1.0,
                 modified=now(),
@@ -392,7 +392,7 @@ class CalculateUpdatedAggregatorsTestCase(TestCase):
         for block in self.blocks[4], self.blocks[6]:
             BlockCompletion.objects.create(
                 user=self.user,
-                course_key=self.course_key,
+                context_key=self.course_key,
                 block_key=block,
                 completion=1.0,
                 modified=now(),
@@ -429,7 +429,7 @@ class CalculateUpdatedAggregatorsTestCase(TestCase):
         for block in self.blocks[4], self.blocks[6]:
             BlockCompletion.objects.create(
                 user=self.user,
-                course_key=self.course_key,
+                context_key=self.course_key,
                 block_key=block,
                 completion=1.0,
                 modified=now(),
@@ -438,7 +438,7 @@ class CalculateUpdatedAggregatorsTestCase(TestCase):
         unknown_block = self.course_key.make_usage_key('html', 'old-version')
         BlockCompletion.objects.create(
             user=self.user,
-            course_key=self.course_key,
+            context_key=self.course_key,
             block_key=unknown_block,
             completion=1.0,
             modified=now(),
@@ -539,7 +539,7 @@ class PartialUpdateTest(TestCase):
         instant = now()
         completion = BlockCompletion.objects.create(
             user=self.user,
-            course_key=self.course_key,
+            context_key=self.course_key,
             block_key=self.blocks[4],
             completion=0.75,
             modified=instant,
@@ -563,7 +563,7 @@ class PartialUpdateTest(TestCase):
     def test_multiple_partial_updates(self):
         completion = BlockCompletion.objects.create(
             user=self.user,
-            course_key=self.course_key,
+            context_key=self.course_key,
             block_key=self.blocks[4],
             completion=0.75,
         )
@@ -586,13 +586,13 @@ class PartialUpdateTest(TestCase):
         new_completions = [
             BlockCompletion.objects.create(
                 user=self.user,
-                course_key=self.course_key,
+                context_key=self.course_key,
                 block_key=self.blocks[5],
                 completion=1.0,
             ),
             BlockCompletion.objects.create(
                 user=self.user,
-                course_key=self.course_key,
+                context_key=self.course_key,
                 block_key=self.blocks[6],
                 completion=0.5,
             ),

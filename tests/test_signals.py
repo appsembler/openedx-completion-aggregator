@@ -41,7 +41,7 @@ class SignalsTestCase(TestCase):
         block_key = UsageKey.from_string('i4x://edX/test/video/friday')
         completable = BlockCompletion(
             user=self.user,
-            course_key=course_key,
+            context_key=course_key,
             block_key=block_key,
             completion=1.0,
             modified=now()
@@ -110,4 +110,6 @@ class SignalsTestCase(TestCase):
         with patch('completion_aggregator.core.compat', StubCompat([])):
             with patch('completion_aggregator.tracking.compat', StubCompat([])):
                 cohort_updated_handler(user, course_key)
-                assert StaleCompletion.objects.filter(username=user.username, course_key=course_key, force=True).exists()
+                assert StaleCompletion.objects.filter(
+                    username=user.username, course_key=course_key, force=True
+                ).exists()

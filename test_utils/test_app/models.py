@@ -12,6 +12,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 
+from model_utils.models import TimeStampedModel
 
 TRACKING_TESTING_COURSE_IDS = {'course-v1:Appsembler+AggEvents101+2020'}
 
@@ -21,7 +22,7 @@ class CourseEnrollment(models.Model):
     Provides an equivalent for the edx-platform CourseEnrollment model.
     """
     is_active = models.BooleanField(default=True)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.DO_NOTHING)
     course_id = CourseKeyField(max_length=255)
 
     @classmethod
@@ -126,3 +127,19 @@ class CourseStructure(models.Model):
     def ordered_blocks(self):
         if self.structure:
             return OrderedDict(self.structure['blocks'], )
+
+
+# Copied over from https://github.com/edx-solutions/progress-edx-platform-extensions/blob/master/progress/models.py
+class CourseModuleCompletion(TimeStampedModel):
+    """
+    The CourseModuleCompletion model contains user, course, module information
+    to monitor a user's progression throughout the duration of a course,
+    we need to observe and record completions of the individual course modules.
+    """
+    user = models.ForeignKey(User, db_index=True, related_name="course_completions", on_delete=models.DO_NOTHING)
+    course_id = models.CharField(max_length=255, db_index=True)
+    content_id = models.CharField(max_length=255, db_index=True)
+    stage = models.CharField(max_length=255, null=True, blank=True)
+
+    class Meta(object):
+        db_table = 'progress_coursemodulecompletion'

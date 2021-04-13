@@ -5,6 +5,7 @@ LMS AWS settings for completion_aggregator.
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from celery.schedules import crontab
+
 from .aws import plugin_settings as aws_plugin_settings
 
 

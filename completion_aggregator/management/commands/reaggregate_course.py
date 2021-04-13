@@ -14,6 +14,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import logging
 
+import six
 from opaque_keys.edx.keys import CourseKey
 
 from django.core.management.base import BaseCommand
@@ -61,6 +62,8 @@ class Command(BaseCommand):
         CourseEnrollment = compat.course_enrollment_model()  # pylint: disable=invalid-name
         for course_str in options['course_keys']:
             course = CourseKey.from_string(course_str)
+            if isinstance(course, six.string_types):
+                course = CourseKey.from_string(course)
             all_enrollments = CourseEnrollment.objects.filter(course=course).select_related('user')
             StaleCompletion.objects.bulk_create(
                 (
