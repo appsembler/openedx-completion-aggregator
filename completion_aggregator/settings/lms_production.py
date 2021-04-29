@@ -6,14 +6,14 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 from celery.schedules import crontab
 
-from .aws import plugin_settings as aws_plugin_settings
+from .production import plugin_settings as production_plugin_settings
 
 
 def plugin_settings(settings):
     """
     Modify the provided settings object with settings specific to this plugin.
     """
-    aws_plugin_settings(settings)
+    production_plugin_settings(settings)
 
     settings.COMPLETION_AGGREGATOR_ENABLE_CELERY_BEAT = settings.ENV_TOKENS.get(
         'COMPLETION_AGGREGATOR_ENABLE_CELERY_BEAT',

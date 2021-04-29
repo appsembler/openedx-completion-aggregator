@@ -24,11 +24,11 @@ class CompletionAggregatorAppConfig(AppConfig):
         },
         'settings_config': {
             'lms.djangoapp': {
-                'aws': {'relative_path': 'settings.lms_aws'},
+                'production': {'relative_path': 'settings.lms_production'},
                 'common': {'relative_path': 'settings.common'},
             },
             'cms.djangoapp': {
-                'aws': {'relative_path': 'settings.aws'},
+                'production': {'relative_path': 'settings.production'},
                 'common': {'relative_path': 'settings.common'},
             },
         },
