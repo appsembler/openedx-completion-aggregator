@@ -198,14 +198,6 @@ def get_segment_key():
     return helpers.get_value('SEGMENT_KEY', getattr(settings, 'LMS_SEGMENT_KEY'))
 
 
-def coursestructure_model():
-    """
-    Return the openedx.core.djangoapps.content.course_structures.models.CourseStructure model.
-    """
-    from openedx.core.djangoapps.content.course_structures.models import CourseStructure  # pylint: disable=import-error
-    return CourseStructure
-
-
 def is_tracking_enabled():
     """
     Return whether event tracking is enabled for the current Site or for the LMS service overall.
