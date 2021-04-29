@@ -185,6 +185,13 @@ def cohort_membership_model():
 
 # Start tracking-related
 
+def get_courseoverview_model():
+    """
+    Return the course_groups.models.CohortMembership model.
+    """
+    from openedx.core.djangoapps.content.course_overviews.models import CourseOverview  # pylint: disable=import-error
+    return CourseOverview
+
 
 def get_segment_key():
     """

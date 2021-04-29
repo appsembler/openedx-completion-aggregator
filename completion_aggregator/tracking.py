@@ -7,7 +7,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 from eventtracking import tracker
 from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
-from xmodule.modulestore.django import modulestore
 
 from . import compat
 
@@ -52,15 +51,15 @@ def track_aggregator_event(aggregator, event_type):
             event_type=event_type
         )
 
-        store = modulestore()
         try:
-            block_name = store.get_item(block_id).display_name_with_default
+            block_name = compat.get_modulestore().get_item(block_id).display_name_with_default
         except AttributeError:
             block_name = str(block_id)
         try:
-            courseoverview = CourseOverview.get_from_id(course_id)
+            courseoverview_model = compat.get_courseoverview_model()
+            courseoverview = courseoverview_model.get_from_id(course_id)
             course_name = courseoverview.display_name
-        except (CourseOverview.DoesNotExist, AttributeError):
+        except (courseoverview_model.DoesNotExist, AttributeError):
             course_name = str(course_id)
 
         tracker.emit(bi_event_name, {

@@ -13,7 +13,7 @@ from django.contrib.auth.models import User
 
 from completion.models import BlockCompletion
 
-from .test_app.models import CohortMembership, CourseAccessRole, CourseEnrollment, CourseStructure, CourseUserGroup
+from .test_app.models import CohortMembership, CourseAccessRole, CourseEnrollment, CourseOverview, CourseUserGroup
 
 
 class StubCompat(object):
@@ -121,13 +121,11 @@ class StubCompat(object):
         """
         return CohortMembership
 
-    # TODO: Should below be moved out of StubCompat? For tracking module not by a stubbed AggregationUpdater
-
-    def coursestructure_model(self):
+    def courseoverview_model(self):
         """
-        Return this replacement for CourseStructure
+        Return this replacement for CourseOverview
         """
-        return CourseStructure
+        return CourseOverview
 
     def get_segment_key(self):
         """
