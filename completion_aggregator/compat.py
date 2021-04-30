@@ -185,7 +185,7 @@ def cohort_membership_model():
 
 # Start tracking-related
 
-def get_courseoverview_model():
+def courseoverview_model():
     """
     Return the course_groups.models.CohortMembership model.
     """

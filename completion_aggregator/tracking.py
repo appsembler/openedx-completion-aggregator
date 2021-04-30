@@ -6,7 +6,6 @@ Tracking and analytics events for completion aggregator activities.
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from eventtracking import tracker
-from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
 
 from . import compat
 
@@ -56,7 +55,7 @@ def track_aggregator_event(aggregator, event_type):
         except AttributeError:
             block_name = str(block_id)
         try:
-            courseoverview_model = compat.get_courseoverview_model()
+            courseoverview_model = compat.courseoverview_model()
             courseoverview = courseoverview_model.get_from_id(course_id)
             course_name = courseoverview.display_name
         except (courseoverview_model.DoesNotExist, AttributeError):
@@ -81,8 +80,8 @@ def track_aggregator_event(aggregator, event_type):
     label_id = course_id if agg_type == 'course' else block_id
     tracker.emit(event_name, {
         'label': '{} {} {}'.format(agg_type, label_id, event_type_label),
-        'course_id': course_id,
-        'block_id': block_id,
+        'course_id': str(course_id),
+        'block_id': str(block_id),
         'completion_percent': percent,
         'completion_earned': earned,
         'completion_possible': possible,
