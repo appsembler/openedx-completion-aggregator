@@ -99,6 +99,8 @@ class CourseOverview(models.Model):
 
     @classmethod
     def get_from_id(cls, course_id):
+        """Return CourseOverview given an opaque_keys.edx.keys.CourseKey."""
+
         try:
             course_overview = cls.objects.get(id=course_id)
         except cls.DoesNotExist:

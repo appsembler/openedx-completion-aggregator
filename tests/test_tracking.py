@@ -8,7 +8,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from copy import copy
 
 import ddt
-from mock import patch
+from mock import Mock, patch
 from opaque_keys.edx.keys import CourseKey
 
 from django.contrib.auth.models import User
@@ -17,6 +17,7 @@ from django.utils.timezone import now
 
 from completion_aggregator import models, tracking
 from test_utils.compat import StubCompat
+from test_utils.test_app import models as test_models
 from test_utils.test_mixins import CompletionAPITestMixin
 
 empty_compat = StubCompat([])
@@ -101,6 +102,8 @@ class EventTrackingTestCase(CompletionAPITestMixin, TestCase):
             possible=1.0,
             last_modified=now(),
         )
+        courseover = test_models.CourseOverview(id=self.course_key, display_name='Appsembler Aggrégatiòn Events 101')
+        courseover.save()
         # update with correct user id
         for event in (
             EXPECTED_EVENT_DATA_GENERIC_STARTED,
@@ -171,7 +174,11 @@ class EventTrackingTestCase(CompletionAPITestMixin, TestCase):
 
     @ddt.data('started', 'completed')
     @patch('completion_aggregator.tracking.tracker.emit')
-    def test_tracking_events_course_happy_path(self, event_type, mock_emit):
+    @patch('completion_aggregator.tracking.compat.get_modulestore')
+    def test_tracking_events_course_happy_path(self, event_type, mock_modulestore, mock_emit):
+        mock_modulestore.return_value.get_item.return_value = Mock(
+            display_name_with_default='Appsembler Aggrégatiòn Events 101'
+        )
         if event_type == 'started':
             self.agg.earned = self.agg.percent = 0.1
             tracking.track_aggregator_event(self.agg, event_type)
