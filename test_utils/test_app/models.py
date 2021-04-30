@@ -9,6 +9,7 @@ from opaque_keys.edx.django.models import CourseKeyField
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models.fields import TextField
 
 from model_utils.models import TimeStampedModel
 
@@ -93,8 +94,16 @@ class CourseOverview(models.Model):
     """
     Provides a minimal equivalent for the edx-platform CourseOverview model.
     """
-    course_id = CourseKeyField(max_length=255, db_index=True, unique=True, verbose_name='Course ID')
-    display_name = "Appsembler Aggrégatiòn Events 101"
+    id = CourseKeyField(max_length=255, db_index=True, unique=True, primary_key=True)
+    display_name = TextField(null=True)
+
+    @classmethod
+    def get_from_id(cls, course_id):
+        try:
+            course_overview = cls.objects.get(id=course_id)
+        except cls.DoesNotExist:
+            course_overview = None
+        return course_overview
 
 
 # Copied over from https://github.com/edx-solutions/progress-edx-platform-extensions/blob/master/progress/models.py
