@@ -185,6 +185,13 @@ def cohort_membership_model():
 
 # Start tracking-related
 
+def courseoverview_model():
+    """
+    Return the course_groups.models.CohortMembership model.
+    """
+    from openedx.core.djangoapps.content.course_overviews.models import CourseOverview  # pylint: disable=import-error
+    return CourseOverview
+
 
 def get_segment_key():
     """
@@ -196,14 +203,6 @@ def get_segment_key():
     # pylint: disable=import-error,literal-used-as-attribute
     from openedx.core.djangoapps.site_configuration import helpers
     return helpers.get_value('SEGMENT_KEY', getattr(settings, 'LMS_SEGMENT_KEY'))
-
-
-def coursestructure_model():
-    """
-    Return the openedx.core.djangoapps.content.course_structures.models.CourseStructure model.
-    """
-    from openedx.core.djangoapps.content.course_structures.models import CourseStructure  # pylint: disable=import-error
-    return CourseStructure
 
 
 def is_tracking_enabled():

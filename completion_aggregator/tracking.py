@@ -34,8 +34,8 @@ def track_aggregator_event(aggregator, event_type):
     event_type_label = 'completion revoked' if event_type == 'revoked' else event_type
 
     agg_type = aggregator.aggregation_name
-    block_id = str(aggregator.block_key)
-    course_id = str(aggregator.course_key)
+    block_id = aggregator.block_key
+    course_id = aggregator.course_key
     org = aggregator.course_key.org
     user_id = aggregator.user.id
     email = aggregator.user.email
@@ -50,24 +50,21 @@ def track_aggregator_event(aggregator, event_type):
             event_type=event_type
         )
 
-        # get the display names out of the CourseStructure for efficiency
         try:
-            course_struct = compat.coursestructure_model().objects.get(course_id=aggregator.course_key)
-            block_name = course_struct.structure['blocks'][block_id]['display_name']
-            _, course_block_struct = course_struct.ordered_blocks.popitem(last=False)
-            try:
-                assert course_block_struct['block_type'] == 'course'
-                course_name = course_block_struct['display_name']
-            except AssertionError:  # this shouldn't happen
-                course_name = course_id
-        except (compat.coursestructure_model().DoesNotExist, KeyError):
-            course_name = course_id
-            block_name = block_id
+            block_name = compat.get_modulestore().get_item(block_id).display_name_with_default
+        except AttributeError:
+            block_name = str(block_id)
+        try:
+            courseoverview_model = compat.courseoverview_model()
+            courseoverview = courseoverview_model.get_from_id(course_id)
+            course_name = courseoverview.display_name
+        except (courseoverview_model.DoesNotExist, AttributeError):
+            course_name = str(course_id)
 
         tracker.emit(bi_event_name, {
             'label': '{} {} {}'.format(agg_type, block_name, event_type_label),
-            'course_id': course_id,
-            'block_id': block_id,
+            'course_id': str(course_id),
+            'block_id': str(block_id),
             'completion_percent': percent,
             'course_name': course_name,
             'block_name': block_name,
@@ -83,8 +80,8 @@ def track_aggregator_event(aggregator, event_type):
     label_id = course_id if agg_type == 'course' else block_id
     tracker.emit(event_name, {
         'label': '{} {} {}'.format(agg_type, label_id, event_type_label),
-        'course_id': course_id,
-        'block_id': block_id,
+        'course_id': str(course_id),
+        'block_id': str(block_id),
         'completion_percent': percent,
         'completion_earned': earned,
         'completion_possible': possible,
