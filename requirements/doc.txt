@@ -40,7 +40,7 @@ cryptography==3.1
     # via pyjwt
 ddt==1.4.1
     # via -r test.in
-django==2.2.15
+django==2.2.24
     # via
     #   -r base.in
     #   django-model-utils
