@@ -193,7 +193,7 @@ pytz==2020.1
     #   edx-completion
     #   fs
     #   xblock
-pyyaml==5.3.1
+pyyaml==5.4
     # via xblock
 readme-renderer==26.0
     # via -r doc.in
