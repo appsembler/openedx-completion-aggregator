@@ -71,7 +71,7 @@ django-waffle==0.15.1
     #   -c constraints.txt
     #   edx-django-utils
     #   edx-drf-extensions
-djangorestframework==3.11.1
+djangorestframework==3.11.2
     # via
     #   -r base.in
     #   drf-jwt
