@@ -30,7 +30,7 @@ UPDATE completion_blockcompletion completion, progress_coursemodulecompletion pr
 log = logging.getLogger(__name__)
 
 
-@shared_task(task=LoggedTask)
+@shared_task(base=LoggedTask)
 def update_aggregators(username, course_key, block_keys=(), force=False):
     """
     Update aggregators for the specified enrollment (user + course).
@@ -54,7 +54,7 @@ def update_aggregators(username, course_key, block_keys=(), force=False):
     except User.DoesNotExist:
         log.warning("User %s does not exist.  Marking stale completions resolved.", username)
         StaleCompletion.objects.filter(username=username).update(resolved=True)
-        return
+        return None
 
     course_key = CourseKey.from_string(course_key)
     block_keys = set(UsageKey.from_string(key).map_into_course(course_key) for key in block_keys)
