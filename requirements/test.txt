@@ -207,7 +207,7 @@ six==1.15.0
     #   pyjwkest
     #   python-dateutil
     #   xblock
-sqlparse==0.4.1
+sqlparse==0.4.2
     # via django
 stevedore==3.3.0
     # via
