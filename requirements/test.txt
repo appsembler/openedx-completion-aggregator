@@ -33,7 +33,7 @@ cryptography==3.4.7
     # via pyjwt
 ddt==1.4.2
     # via -r test.in
-django==2.2.25
+django==2.2.27
     # via
     #   -r base.in
     #   code-annotations
