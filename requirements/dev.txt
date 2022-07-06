@@ -16,7 +16,7 @@ astroid==2.3.3
     #   pylint-celery
 attrs==20.3.0
     # via pytest
-backports.functools-lru-cache==1.6.4
+backports-functools-lru-cache==1.6.4
     # via caniusepython3
 billiard==3.6.4.0
     # via celery
@@ -185,7 +185,7 @@ kombu==4.6.11
     # via celery
 lazy-object-proxy==1.4.3
     # via astroid
-lxml==4.6.5
+lxml==4.9.1
     # via xblock
 markupsafe==1.1.1
     # via
@@ -214,8 +214,8 @@ packaging==20.9
     #   pytest
     #   tox
 path==15.1.2
-    # via path.py
-path.py==12.5.0
+    # via path-py
+path-py==12.5.0
     # via edx-i18n-tools
 pbr==5.6.0
     # via stevedore

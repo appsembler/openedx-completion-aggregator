@@ -116,7 +116,7 @@ jsonfield2==3.0.3
     #   edx-celeryutils
 kombu==4.6.11
     # via celery
-lxml==4.6.5
+lxml==4.9.1
     # via xblock
 markupsafe==1.1.1
     # via
