@@ -17,7 +17,7 @@ celery==4.4.7
     #   -c constraints.txt
     #   -r base.in
     #   edx-celeryutils
-certifi==2020.12.5
+certifi==2022.12.7
     # via requests
 cffi==1.14.5
     # via cryptography
