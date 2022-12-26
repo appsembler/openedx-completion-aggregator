@@ -16,7 +16,7 @@ astroid==2.3.3
     #   pylint-celery
 attrs==20.3.0
     # via pytest
-backports.functools-lru-cache==1.6.4
+backports-functools-lru-cache==1.6.4
     # via caniusepython3
 billiard==3.6.4.0
     # via celery
@@ -214,8 +214,8 @@ packaging==20.9
     #   pytest
     #   tox
 path==15.1.2
-    # via path.py
-path.py==12.5.0
+    # via path-py
+path-py==12.5.0
     # via edx-i18n-tools
 pbr==5.6.0
     # via stevedore
@@ -381,7 +381,7 @@ webencodings==0.5.1
     # via bleach
 webob==1.8.7
     # via xblock
-wheel==0.36.2
+wheel==0.38.1
     # via -r dev.in
 wrapt==1.11.2
     # via astroid
