@@ -13,6 +13,8 @@ from django.contrib.auth.models import User
 
 from completion.models import BlockCompletion
 
+from eventtracking import tracker
+
 from .test_app.models import CohortMembership, CourseAccessRole, CourseEnrollment, CourseOverview, CourseUserGroup
 
 
@@ -144,6 +146,14 @@ class StubCompat(object):
         Return setting without recourse to site_configuration.helpers.
         """
         return settings.COMPLETION_AGGREGATOR_TRACKED_BLOCK_TYPES
+
+    def task_track(self, request_info, task_info, event_type, event, page):
+        """
+        Just use eventtracking library's tracker.emit().
+        We won't have the full common.djangoapps.track app.
+        """
+        return tracker.emit(event_type, event)
+
 
 
 CourseTreeNode = collections.namedtuple('CourseTreeNode', ['block', 'children'])
