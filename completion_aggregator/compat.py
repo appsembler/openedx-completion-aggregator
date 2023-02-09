@@ -20,8 +20,6 @@ from django.conf import settings
 
 from .transformers import AggregatorAnnotationTransformer
 
-from track import task_track as track_app_task_track
-
 
 class DoesNotExist(Exception):
     """
@@ -233,6 +231,7 @@ def get_trackable_aggregator_types():
 
 
 def task_track(request_info, task_info, event_type, event, page=None):
+    from track import task_track as track_app_task_track
     return track_app_task_track(request_info, task_info, event_type, event, page)
 
 # End tracking-related
