@@ -13,8 +13,6 @@ from django.contrib.auth.models import User
 
 from completion.models import BlockCompletion
 
-from eventtracking import tracker
-
 from .test_app.models import CohortMembership, CourseAccessRole, CourseEnrollment, CourseOverview, CourseUserGroup
 
 
@@ -152,6 +150,7 @@ class StubCompat(object):
         Just use eventtracking library's tracker.emit().
         We won't have the full common.djangoapps.track app.
         """
+        from eventtracking import tracker
         return tracker.emit(event_type, event)
 
 
