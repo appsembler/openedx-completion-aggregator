@@ -145,6 +145,15 @@ class StubCompat(object):
         """
         return settings.COMPLETION_AGGREGATOR_TRACKED_BLOCK_TYPES
 
+    def task_track(self, request_info, task_info, event_type, event, page):
+        """
+        Just use eventtracking library's tracker.emit().
+        We won't have the full common.djangoapps.track app.
+        """
+        from eventtracking import tracker
+        return tracker.emit(event_type, event)
+
+
 
 CourseTreeNode = collections.namedtuple('CourseTreeNode', ['block', 'children'])
 
