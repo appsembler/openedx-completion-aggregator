@@ -32,7 +32,7 @@ EXPECTED_EVENT_DATA_GENERIC_STARTED = {
     'completion_earned': 0.1,
     'completion_possible': 1.0,
     'org': 'Appsembler',
-    'context': {'user_id': 1}
+    'context': {'user_id': 1, 'username': 'test_user'}
 }
 
 EXPECTED_EVENT_DATA_GENERIC_COMPLETED = copy(EXPECTED_EVENT_DATA_GENERIC_STARTED)
