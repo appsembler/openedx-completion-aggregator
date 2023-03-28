@@ -230,8 +230,4 @@ def get_trackable_aggregator_types():
         settings.COMPLETION_AGGREGATOR_TRACKED_BLOCK_TYPES)
 
 
-def task_track(request_info, task_info, event_type, event, page=None):
-    from track.views import task_track as track_app_task_track
-    return track_app_task_track(request_info, task_info, event_type, event, page)
-
 # End tracking-related

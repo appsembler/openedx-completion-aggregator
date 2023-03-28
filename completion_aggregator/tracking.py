@@ -5,6 +5,8 @@ Tracking and analytics events for completion aggregator activities.
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+from eventtracking import tracker
+
 from . import compat
 
 TRACKER_BI_EVENT_NAME_FORMAT = 'edx.bi.completion.user.{agg_type}.{event_type}'
@@ -60,7 +62,7 @@ def track_aggregator_event(aggregator, event_type):
         except (courseoverview_model.DoesNotExist, AttributeError):
             course_name = str(course_id)
 
-        compat.task_track({}, {}, bi_event_name, {
+        tracker.emit(bi_event_name, {
             'label': '{} {} {}'.format(agg_type, block_name, event_type_label),
             'course_id': str(course_id),
             'block_id': str(block_id),
@@ -78,7 +80,7 @@ def track_aggregator_event(aggregator, event_type):
     # generic tracking event
     event_name = TRACKER_EVENT_NAME_FORMAT.format(event_type=event_type)
     label_id = course_id if agg_type == 'course' else block_id
-    compat.task_track({}, {}, event_name, {
+    tracker.emit(event_name, {
         'label': '{} {} {}'.format(agg_type, label_id, event_type_label),
         'course_id': str(course_id),
         'block_id': str(block_id),
