@@ -4,4 +4,4 @@ futures; python_version < "3"
 inflect<4.0.0
 edx-celeryutils==0.5.2 # This version is used with Koa.
 celery<5.0
-oauthlib==3.0.1
+oauthlib==4.0.0
